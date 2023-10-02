@@ -1,2 +1,2 @@
 # vscode-intellisense
-[Exprimental] bringing kinya-lang to vscode (intellisense)
+[Exprimental] bringing kin-lang to vscode (intellisense)
