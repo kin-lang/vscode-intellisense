@@ -4,7 +4,7 @@
   "description": "VS Code support for Kin Programming Language",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.86.0"
+    "vscode": "^1.72.0"
   },
   "categories": [
     "Programming Languages"
