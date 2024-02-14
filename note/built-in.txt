@@ -1,0 +1,31 @@
+ntagaza_amakuru(value)
+injiza_amakuru(string)
+ubwoko(value) -> string
+sisitemu(value)
+
+KIN_AMAGAMBO.huza(string, string) -> string
+KIN_AMAGAMBO.ingano(string) -> number
+KIN_AMAGAMBO.tandukanya(value, delimiter) -> string
+KIN_AMAGAMBO.inyuguti_nkuru(string) -> string
+KIN_AMAGAMBO.inyuguti_ntoya(string) -> string
+
+KIN_URUTONDE.ifite(array, value) -> bool
+KIN_URUTONDE.kora_ijambo(array) -> string
+KIN_AMAGAMBO.ingano(array) -> number
+
+KIN_INYANDIKO.andika(string, string) -> bool
+KIN_INYANDIKO.soma(string) -> string
+KIN_INYANDIKO.vugurura(string, string) -> bool
+KIN_INYANDIKO.siba(string) -> bool
+
+KIN_IGIHE.isaha() -> string
+KIN_IGIHE.umunsi() -> string
+KIN_IGIHE.itariki() -> string
+
+KIN_IMIBARE.pi
+KIN_IMIBARE.umubare_utazwi() -> number
+KIN_IMIBARE.kuraho_ibice() -> number
+KIN_IMIBARE.umuzikare() -> number
+KIN_IMIBARE.sin() -> number
+KIN_IMIBARE.cos() -> number
+KIN_IMIBARE.tan() -> number

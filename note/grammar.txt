@@ -1,0 +1,42 @@
+program           ::= statement*
+
+statement         ::= variableDeclaration
+                   | functionDeclaration
+                   | loopStatement
+                   | conditionalStatement
+                   | expressionStatement
+                   | returnStatement
+
+variableDeclaration ::= "reka" | "ntahinduka" identifier ("=" expression)? ";"
+
+functionDeclaration ::= "porogaramu_ntoya" identifier "(" (identifier ("," identifier)*)? ")" "{" statement* "}"
+
+loopStatement      ::= "subiramo_niba" "(" expression ")" "{" statement* "}"
+
+conditionalStatement ::= "niba" "(" expression ")" "{" statement* "}" ("nanone_niba" "(" expression ")" "{" statement* "}")? ("niba_byanze" "{" statement* "}")?
+
+expressionStatement ::= expression
+
+returnStatement    ::= "tanga" (expression | ";")
+
+expression         ::= assignmentExpression
+
+assignmentExpression ::= objectLiteral ("=" assignmentExpression)?
+
+objectLiteral      ::= arrayExpression | primaryExpression
+
+arrayExpression    ::= "[" (expression ("," expression)*)? "]"
+
+primaryExpression  ::= identifier
+                   | numericLiteral
+                   | stringLiteral
+                   | "(" expression ")"
+                   | functionReturn
+
+functionReturn     ::= "tanga" (expression | ";")
+
+identifier         ::= [a-zA-Z_] [a-zA-Z0-9_]*
+
+numericLiteral     ::= [0-9]+ ("." [0-9]+)?
+
+stringLiteral      ::= "\"" .* "\""
