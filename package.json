@@ -1,5 +1,5 @@
 {
-  "name": "kin-programming-language",
+  "name": "kinlang",
   "displayName": "Kin Programming Language",
   "description": "VS Code support for Kin Programming Language",
   "version": "0.0.1",
@@ -10,16 +10,28 @@
     "Programming Languages"
   ],
   "contributes": {
-    "languages": [{
-      "id": "kinlang",
-      "aliases": ["Kin Programming Language", "kinlang"],
-      "extensions": [".kin"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{
-      "language": "kinlang",
-      "scopeName": "source.kin",
-      "path": "./syntaxes/kinlang.tmLanguage.json"
-    }]
+    "languages": [
+      {
+        "id": "kinlang",
+        "aliases": [
+          "Kin Programming Language",
+          "kinlang"
+        ],
+        "extensions": [
+          ".kin"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "kin",
+        "scopeName": "source.kin",
+        "path": "./syntaxes/kinlang.tmLanguage.json"
+      }
+    ]
+  },
+  "__metadata": {
+    "publisherDisplayName": "kin"
   }
 }
