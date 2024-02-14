@@ -32,7 +32,7 @@
     ],
     "grammars": [
       {
-        "language": "kin",
+        "language": "kinlang",
         "scopeName": "source.kin",
         "path": "./syntaxes/kinlang.tmLanguage.json"
       }
