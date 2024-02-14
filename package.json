@@ -6,6 +6,9 @@
   "engines": {
     "vscode": "^1.72.0"
   },
+  "scripts": {
+    "package": "vsce package"
+  },
   "categories": [
     "Programming Languages"
   ],
@@ -29,7 +32,7 @@
     ],
     "grammars": [
       {
-        "language": "kin",
+        "language": "kinlang",
         "scopeName": "source.kin",
         "path": "./syntaxes/kinlang.tmLanguage.json"
       }

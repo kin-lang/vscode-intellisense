@@ -1,0 +1,9 @@
+reka bwenge = injiza_amakuru("ufite ubwenge bungana iki: ")
+
+niba (bwenge == "bwinshi") {
+    tangaza_amakuru("Ni bwinshi cyane")
+} nanone_niba (bwenge == "buke") {
+    tangaza_amakuru("Byaranze")
+} niba_byanze {
+    tangaza_amakuru("Uri uwo gusengerwa.")
+}
