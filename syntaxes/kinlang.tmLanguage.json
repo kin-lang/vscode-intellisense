@@ -1,176 +1,169 @@
 {
-  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-  "name": "Kin Programming Language",
+  "name": "Kinlang",
+  "scopeName": "source.kinlang",
+  "uuid": "2e12aebc-e05d-46b8-bece-9fe4cbf0fe3a",
   "patterns": [
     {
-      "include": "#keywords"
+      "match": "(?x)-?(?:0|[1-9]\\d*)(?:(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)?",
+      "name": "constant.numeric"
     },
     {
-      "include": "#strings"
+      "begin": "'",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin"
+        }
+      },
+      "end": "'",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end"
+        }
+      },
+      "name": "string.quoted.single",
+      "patterns": [
+        {
+          "include": "#escaped_char"
+        }
+      ]
     },
     {
-      "include": "#variables"
+      "begin": "\"",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin"
+        }
+      },
+      "end": "\"",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end"
+        }
+      },
+      "name": "string.quoted.double",
+      "patterns": [
+        {
+          "include": "#escaped_char"
+        }
+      ]
     },
     {
-      "include": "#methods"
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.comment"
+        }
+      },
+      "match": "\\A(#!).*$\\n?",
+      "name": "comment.line.shebang"
     },
     {
-      "include": "#grammar"
+      "match": "^#.*$",
+      "captures": {
+        "0": {
+          "name": "comment.line.number-sign"
+        }
+      },
+      "patterns": [
+        {
+          "match": "^#.*$",
+          "captures": {
+            "0": {
+              "name": "comment.line.number-sign"
+            }
+          }
+        },
+        {
+          "match": "([a-zA-Z0-9_]+)\\s*\\((?:[^\\\\]|\\))*\\)",
+          "captures": {
+            "1": {
+              "name": "entity.name.function"
+            },
+            "2": {
+              "name": "punctuation.definition.parameter"
+            },
+            "3": {
+              "name": "variable.other.argument"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "match": "\\b(niba|nanone_niba|niba_byanze|subiramo_niba|porogaramu_ntoya|reka|ntahinduka|tanga|ubwoko|sisitemu|injiza_amakuru|ntagaza_amakuru|KIN_AMAGAMBO|KIN_URUTONDE|KIN_INYANDIKO|KIN_IGIHE|KIN_IMIBARE)\\b",
+      "name": "keyword"
+    },
+    {
+      "match": "(?<!\\.)\\bikosa\\b",
+      "name": "constant.language.error"
+    },
+    {
+      "match": "(?<!\\.)\\bubusa\\b",
+      "name": "constant.language.null"
+    },
+    {
+      "match": "(?<!\\.)\\b(nibyo|sibyo)\\b",
+      "name": "constant.language.boolean"
+    },
+    {
+      "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\b(?=\\s*(?:[({\"']|\\[\\[))",
+      "name": "variable.other"
+    },
+    {
+      "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\\.)",
+      "name": "variable.property"
+    },
+    {
+      "match": "\\.(?=\\w)",
+      "name": "punctuation.accessor"
+    },
+    {
+      "match": "==|!=|>=|<=|>|<",
+      "name": "keyword.operator.comparison"
+    },
+    {
+      "match": "\\+|-|\\*|/|%|\\^",
+      "name": "keyword.operator.arithmetic"
+    },
+    {
+      "match": "(?<!\\.)(!|\\&\\&|\\|\\|)",
+      "name": "keyword.operator.logical"
+    },
+    {
+      "match": "=",
+      "name": "keyword.operator.assignment"
+    },
+    {
+      "match": "\\[|\\]|\\(|\\)",
+      "name": "punctuation.delimiter"
+    },
+    {
+      "match": "{|}",
+      "name": "punctuation.definition.block"
+    },
+    {
+      "match": ";",
+      "name": "punctuation.terminator"
+    },
+    {
+      "match": ",",
+      "name": "punctuation.separator"
+    },
+    {
+      "include": "#escaped_char"
     }
   ],
   "repository": {
-    "keywords": {
+    "escaped_char": {
       "patterns": [
         {
-          "name": "keyword.control.kinlang",
-          "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|niba|nanone_niba|niba_byanze)\\b"
+          "match": "\\\\[abfnrtvz\\\\\"'\\n]",
+          "name": "constant.character.escape"
         },
         {
-          "name": "keyword.constant.kinlang",
-          "match": "\\b(ubusa|nibyo|sibyo|ikosa)\\b"
-        }
-      ]
-    },
-    "strings": {
-      "name": "string.quoted.double.kinlang",
-      "begin": "\"",
-      "end": "\"",
-      "patterns": [
-        {
-          "name": "constant.character.escape.kinlang",
-          "match": "\\\\."
-        }
-      ]
-    },
-    "variables": {
-      "patterns": [
-        {
-          "name": "variable.declaration.kinlang",
-          "match": "\\b(reka|ntahinduka)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*(=\\s*\\b.*\\b)?\\s*;?"
-        }
-      ]
-    },
-    "methods": {
-      "patterns": [
-        {
-          "name": "method.kinlang",
-          "match": "\\b(KIN_AMAGAMBO\\.huza|KIN_AMAGAMBO\\.ingano|KIN_AMAGAMBO\\.tandukanya|KIN_AMAGAMBO\\.inyuguti_nkuru|KIN_AMAGAMBO\\.inyuguti_ntoya|KIN_URUTONDE\\.ifite|KIN_URUTONDE\\.kora_ijambo|KIN_AMAGAMBO\\.ingano|KIN_INYANDIKO\\.andika|KIN_INYANDIKO\\.soma|KIN_INYANDIKO\\.vugurura|KIN_INYANDIKO\\.siba|KIN_IGIHE\\.isaha|KIN_IGIHE\\.umunsi|KIN_IGIHE\\.itariki|KIN_IMIBARE\\.pi|KIN_IMIBARE\\.umubare_utazwi|KIN_IMIBARE\\.kuraho_ibice|KIN_IMIBARE\\.umuzikare|KIN_IMIBARE\\.sin|KIN_IMIBARE\\.cos|KIN_IMIBARE\\.tan)\\b\\s*\\([^)]*\\)\\s*->\\s*\\b.*\\b\\s*"
-        }
-      ]
-    },
-    "grammar": {
-      "patterns": [
-        {
-          "name": "program.kinlang",
-          "begin": "\\b(program)\\b",
-          "end": "$",
-          "patterns": [
-            {
-              "include": "#statement"
-            }
-          ]
-        },
-        {
-          "name": "statement.kinlang",
-          "begin": "\\b(statement)\\b",
-          "end": ";?",
-          "patterns": [
-            {
-              "include": "#variableDeclaration"
-            },
-            {
-              "include": "#functionDeclaration"
-            },
-            {
-              "include": "#loopStatement"
-            },
-            {
-              "include": "#conditionalStatement"
-            },
-            {
-              "include": "#expressionStatement"
-            },
-            {
-              "include": "#returnStatement"
-            }
-          ]
-        },
-        {
-          "name": "variableDeclaration.kinlang",
-          "begin": "\\b(reka|ntahinduka)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*(=\\s*\\b.*\\b)?",
-          "end": ";?"
-        },
-        {
-          "name": "functionDeclaration.kinlang",
-          "begin": "\\b(porogaramu_ntoya)\\b\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\([^)]*\\)\\s*\\{",
-          "end": "\\}"
-        },
-        {
-          "name": "loopStatement.kinlang",
-          "begin": "\\b(subiramo_niba)\\b\\s*\\(.*\\)\\s*\\{",
-          "end": "\\}"
-        },
-        {
-          "name": "conditionalStatement.kinlang",
-          "begin": "\\b(niba)\\b\\s*\\(.*\\)\\s*\\{",
-          "end": "\\}",
-          "patterns": [
-            {
-              "begin": "\\b(nanone_niba)\\b\\s*\\(.*\\)\\s*\\{",
-              "end": "\\}"
-            },
-            {
-              "begin": "\\b(niba_byanze)\\b\\s*\\{",
-              "end": "\\}"
-            }
-          ]
-        },
-        {
-          "name": "expressionStatement.kinlang",
-          "include": "#expression"
-        },
-        {
-          "name": "returnStatement.kinlang",
-          "begin": "\\b(tanga)\\b\\s*(\\b.*\\b)?\\s*",
-          "end": ";?",
-          "patterns": [
-            {
-              "include": "#expression"
-            }
-          ]
-        },
-        {
-          "include": "#expression"
-        },
-        {
-          "name": "assignmentExpression.kinlang",
-          "begin": "\\b(.*\\b=)\\b",
-          "end": ";?"
-        },
-        {
-          "name": "objectLiteral.kinlang",
-          "begin": "\\b(\\{)\\b",
-          "end": "\\}"
-        },
-        {
-          "name": "arrayExpression.kinlang",
-          "begin": "\\b(\\[)\\b",
-          "end": "\\]"
-        },
-        {
-          "name": "identifier.kinlang",
-          "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\b"
-        },
-        {
-          "name": "numericLiteral.kinlang",
-          "match": "\\b([0-9]+(\\.[0-9]+)?)\\b"
-        },
-        {
-          "name": "stringLiteral.kinlang",
-          "match": "\".*\""
+          "match": "\\\\.",
+          "name": "invalid.illegal.character.escape"
         }
       ]
     }
-  },
-  "scopeName": "source.kin"
+  }
 }
