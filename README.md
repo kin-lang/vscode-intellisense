@@ -1,3 +1,11 @@
-# Kin-programming-language Support for VS Code
+# Kin In VS Code
 
-Extension to support the Kin programming language in Visual Studio Code.
+Kin Programming Language support for VS Code, it offers:
+
+- `Syntax Hilighting`
+- `Code Autocompletion`
+- `LSP (later)`
+
+## LICENSE
+
+This extension is under Apache License 2.0 license.

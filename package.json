@@ -3,9 +3,11 @@
   "displayName": "Kin Programming Language",
   "description": "VS Code support for Kin Programming Language",
   "version": "0.0.1",
+  "icon": "images/logo.png",
   "engines": {
     "vscode": "^1.72.0"
   },
+  "publisher": "pacifiquem",
   "scripts": {
     "package": "vsce package"
   },
