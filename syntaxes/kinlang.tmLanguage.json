@@ -57,12 +57,8 @@
       "name": "comment.line.shebang"
     },
     {
-      "match": "(?<![^#])#.*$",
-      "captures": {
-        "0": {
-          "name": "comment.line.number-sign"
-        }
-      }
+      "match": "#.*",
+      "name": "comment.line.number-sign"
     },
     {
       "patterns": [
