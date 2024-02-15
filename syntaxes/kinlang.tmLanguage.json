@@ -57,7 +57,7 @@
       "name": "comment.line.shebang"
     },
     {
-      "match": "^#.*$",
+      "match": "(?<!^)#(?!\\s*$).*",
       "captures": {
         "0": {
           "name": "comment.line.number-sign"
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "match": "\\b(niba|nanone_niba|niba_byanze|subiramo_niba|porogaramu_ntoya|reka|ntahinduka|tanga|ubwoko|sisitemu|injiza_amakuru|ntagaza_amakuru|KIN_AMAGAMBO|KIN_URUTONDE|KIN_INYANDIKO|KIN_IGIHE|KIN_IMIBARE)\\b",
+      "match": "\\b(niba|nanone_niba|niba_byanze|subiramo_niba|porogaramu_ntoya|reka|ntahinduka|tanga|ubwoko|sisitemu|injiza_amakuru|tangaza_amakuru|KIN_AMAGAMBO|KIN_URUTONDE|KIN_INYANDIKO|KIN_IGIHE|KIN_IMIBARE)\\b",
       "name": "keyword"
     },
     {
