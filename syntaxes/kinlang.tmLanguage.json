@@ -57,7 +57,7 @@
       "name": "comment.line.shebang"
     },
     {
-      "match": "(?<!^)#(?=s*$|[^#].*)",
+      "match": "(?<![^#])#.*$",
       "captures": {
         "0": {
           "name": "comment.line.number-sign"
