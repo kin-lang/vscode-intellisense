@@ -2,7 +2,7 @@
 
 Kin Programming Language support for VS Code, it offers:
 
-- `Syntax Hilighting`
+- `Syntax Highlighting`
 - `Code Autocompletion`
 - `LSP (later)`
 
