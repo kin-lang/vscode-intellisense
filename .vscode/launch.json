@@ -1,12 +1,16 @@
-// A launch configuration that launches the extension inside a new window
 {
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Extension",
+      "name": "Run Kin extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}"]
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "${workspaceFolder}/tests/fixtures"
+      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "npm: compile"
     }
   ]
 }
