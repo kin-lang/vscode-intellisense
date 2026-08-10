@@ -41,6 +41,15 @@ const TYPE_INDEX: Record<(typeof TOKEN_TYPES)[number], number> = {
   comment: 8,
 };
 
+/**
+ * Numeric `TokenType` values from `@kin-lang/kin` `src/lexer/tokens.ts`
+ * (published 0.4.3 and local). STRING is 24, not 31 (31 is AND).
+ */
+const TOKEN_DOT = 0;
+const TOKEN_STRING = 24;
+const TOKEN_INTEGER = 25;
+const TOKEN_FLOAT = 26;
+
 interface Located {
   line: number;
   startChar: number;
@@ -52,12 +61,27 @@ interface Located {
 function classify(
   lexeme: string,
   rawType: number,
+  afterDot: boolean,
 ): { type: (typeof TOKEN_TYPES)[number]; mods: number } | null {
+  // Classify by lexer TokenType first so `"Hello"` is a string, not a variable.
+  if (rawType === TOKEN_STRING) {
+    return { type: 'string', mods: 0 };
+  }
+  if (rawType === TOKEN_INTEGER || rawType === TOKEN_FLOAT) {
+    return { type: 'number', mods: 0 };
+  }
+
   if (KEYWORD_NAMES.has(lexeme)) {
     return { type: 'keyword', mods: 0 };
   }
+
+  // `obj.pi`, `KIN_IMIBARE.sin`, user keys after `.` are properties.
+  if (afterDot && /^[A-Za-z_][A-Za-z0-9_]*$/.test(lexeme)) {
+    return { type: 'property', mods: 0 };
+  }
+
   if (CONSTANT_NAMES.has(lexeme)) {
-    return { type: 'variable', mods: 1 << 1 /* readonly */ | 1 << 2 /* defaultLibrary */ };
+    return { type: 'variable', mods: (1 << 1) /* readonly */ | (1 << 2) /* defaultLibrary */ };
   }
   if (NAMESPACE_NAMES.has(lexeme)) {
     return { type: 'namespace', mods: 1 << 2 };
@@ -66,12 +90,6 @@ function classify(
     return { type: 'function', mods: 1 << 2 };
   }
 
-  // TokenType numeric values from kin/src/lexer/tokens.ts
-  // STRING = 31, INTEGER = 32, FLOAT = 33  (after 31 one-char/literal slots)
-  // We also treat operators by lexeme.
-  if (/^-?\d+(\.\d+)?$/.test(lexeme)) {
-    return { type: 'number', mods: 0 };
-  }
   if (
     ['+', '-', '*', '/', '%', '^', '=', '==', '!=', '<', '>', '<=', '>=', '&&', '||', '!'].includes(
       lexeme,
@@ -80,17 +98,8 @@ function classify(
     return { type: 'operator', mods: 0 };
   }
 
-  // Heuristic: STRING tokens have their quotes stripped, so they won't match
-  // identifier rules when they contain spaces. Bare identifiers fall through.
   if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(lexeme)) {
     return { type: 'variable', mods: 0 };
-  }
-
-  // Anything else with letters/spaces is likely a string literal body.
-  if (rawType >= 0 && lexeme.length > 0 && !/^[(){}\[\],:;.]$/.test(lexeme)) {
-    if (/[\s"]/.test(lexeme) || !/^[A-Za-z0-9_+\-*/%=!<>&|^]+$/.test(lexeme)) {
-      return { type: 'string', mods: 0 };
-    }
   }
 
   return null;
@@ -106,37 +115,42 @@ export function locateAndClassify(text: string): Located[] {
   const located: Located[] = [];
   const lines = text.split('\n');
   const cursors = lines.map(() => 0);
+  let prevWasDot = false;
 
   for (const token of tokens) {
     if (token.lexeme === 'EOF') break;
     const lineIdx = Math.max(0, token.line - 1);
     const line = lines[lineIdx] ?? '';
-    let search = token.lexeme;
-    let extraLeft = 0;
-    let extraRight = 0;
-
-    // Strings: lexer strips the surrounding quotes.
     const from = cursors[lineIdx] ?? 0;
     const slice = line.slice(from);
-    let rel = slice.indexOf(search);
 
-    if (rel < 0) {
-      const quoted = `"${search}"`;
+    let search = token.lexeme;
+    let rel = -1;
+
+    // Strings: lexer strips the surrounding quotes. Paint the quotes too.
+    if (token.type === TOKEN_STRING) {
+      const quoted = `"${token.lexeme}"`;
       rel = slice.indexOf(quoted);
       if (rel >= 0) {
-        extraLeft = 0;
-        extraRight = 0;
         search = quoted;
+      } else {
+        rel = slice.indexOf(token.lexeme);
       }
+    } else {
+      rel = slice.indexOf(search);
     }
 
-    if (rel < 0) continue;
+    if (rel < 0) {
+      prevWasDot = token.type === TOKEN_DOT || token.lexeme === '.';
+      continue;
+    }
 
-    const startChar = from + rel + extraLeft;
-    const length = search.length + extraRight;
+    const startChar = from + rel;
+    const length = search.length;
     cursors[lineIdx] = startChar + length;
 
-    const classified = classify(token.lexeme, token.type);
+    const classified = classify(token.lexeme, token.type, prevWasDot);
+    prevWasDot = token.type === TOKEN_DOT || token.lexeme === '.';
     if (!classified) continue;
 
     located.push({

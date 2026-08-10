@@ -18,6 +18,18 @@ const grammar = JSON.parse(
   }>;
 };
 
+const languageConfig = JSON.parse(
+  readFileSync(
+    path.join(__dirname, '../../language-configuration.json'),
+    'utf-8',
+  ),
+) as {
+  wordPattern?: string;
+  folding?: { markers?: { start?: string; end?: string } };
+  indentationRules?: { increaseIndentPattern?: string; decreaseIndentPattern?: string };
+  autoClosingPairs?: Array<[string, string]>;
+};
+
 describe('TextMate grammar', () => {
   test('highlights hagarara as a keyword (was missing)', () => {
     const keywords = grammar.patterns.find((p) => p.match?.includes('hagarara'));
@@ -66,6 +78,52 @@ describe('TextMate grammar', () => {
     assert.equal(grammar.patterns[0].match, '#.*$');
     assert.match(grammar.patterns[0].name ?? '', /comment/);
   });
+
+  test('member names highlight only after a dot', () => {
+    const member = grammar.patterns.find((p) =>
+      p.match?.includes('umuzikare') && (p.name?.includes('member') ?? false),
+    );
+    assert.ok(member, 'missing member pattern');
+    assert.match(member!.match ?? '', /\\\./);
+    assert.ok(
+      !/^(?:\(\?<!\\\.\)\\b)?\(pi\|/.test(member!.match ?? ''),
+      'member names must not match as bare words',
+    );
+  });
+
+  test('filename is a constant, not a built-in function', () => {
+    const fn = grammar.patterns.find(
+      (p) => p.name === 'support.function.kin' && p.match?.includes('tangaza_amakuru'),
+    );
+    assert.ok(fn);
+    assert.ok(!fn!.match?.includes('filename'), 'filename must not be a support.function');
+    const filename = grammar.patterns.find((p) => p.match?.includes('filename'));
+    assert.match(filename?.name ?? '', /constant/);
+  });
+});
+
+describe('language-configuration', () => {
+  test('wordPattern matches Kin identifiers only', () => {
+    assert.equal(languageConfig.wordPattern, '[A-Za-z_][A-Za-z0-9_]*');
+  });
+
+  test('folds braces via editor brackets and # region markers', () => {
+    assert.match(languageConfig.folding?.markers?.start ?? '', /#\\s\*region/);
+    assert.match(languageConfig.folding?.markers?.end ?? '', /#\\s\*endregion/);
+  });
+
+  test('indents on {, gereranya, and usanze', () => {
+    const inc = languageConfig.indentationRules?.increaseIndentPattern ?? '';
+    assert.match(inc, /gereranya/);
+    assert.match(inc, /usanze/);
+    assert.match(inc, /\\\{/);
+  });
+
+  test('does not auto-close single quotes', () => {
+    const opens = (languageConfig.autoClosingPairs ?? []).map((p) => p[0]);
+    assert.ok(!opens.includes("'"));
+    assert.ok(opens.includes('"'));
+  });
 });
 
 describe('semantic tokens from the Kin lexer', () => {
@@ -92,5 +150,41 @@ describe('semantic tokens from the Kin lexer', () => {
       tokens.some((t) => t.type === 'comment'),
       false,
     );
+  });
+
+  test('"Hello" is a string token (including quotes), not a variable', () => {
+    const src = 'reka s = "Hello"';
+    const tokens = locateAndClassify(src);
+    const slice = (t: (typeof tokens)[number]) =>
+      src.split('\n')[t.line].slice(t.startChar, t.startChar + t.length);
+
+    const str = tokens.find((t) => t.type === 'string');
+    assert.ok(str, `no string token in ${tokens.map((t) => `${slice(t)}:${t.type}`).join(', ')}`);
+    assert.equal(slice(str!), '"Hello"');
+    assert.equal(
+      tokens.some((t) => t.type === 'variable' && slice(t) === 'Hello'),
+      false,
+    );
+  });
+
+  test('identifier-shaped strings stay strings', () => {
+    const src = 'reka s = "Kin"';
+    const tokens = locateAndClassify(src);
+    const slice = (t: (typeof tokens)[number]) =>
+      src.split('\n')[t.line].slice(t.startChar, t.startChar + t.length);
+    const str = tokens.find((t) => t.type === 'string');
+    assert.equal(slice(str!), '"Kin"');
+  });
+
+  test('members after a dot are properties', () => {
+    const src = 'KIN_IMIBARE.pi\nobj.ingano';
+    const tokens = locateAndClassify(src);
+    const slice = (t: (typeof tokens)[number]) =>
+      src.split('\n')[t.line].slice(t.startChar, t.startChar + t.length);
+    const byLex = new Map(tokens.map((t) => [slice(t), t.type]));
+    assert.equal(byLex.get('KIN_IMIBARE'), 'namespace');
+    assert.equal(byLex.get('pi'), 'property');
+    assert.equal(byLex.get('ingano'), 'property');
+    assert.equal(byLex.get('obj'), 'variable');
   });
 });

@@ -46,11 +46,15 @@
       "name": "support.class.kin"
     },
     {
-      "match": "\\b(tangaza_amakuru|injiza_amakuru|sisitemu|ubwoko|filename)\\b",
+      "match": "(?<!\\.)\\bfilename\\b",
+      "name": "constant.language.kin"
+    },
+    {
+      "match": "\\b(tangaza_amakuru|injiza_amakuru|sisitemu|ubwoko)\\b",
       "name": "support.function.kin"
     },
     {
-      "match": "\\b(pi|umuzikare|umubare_utazwi|kuraho_ibice|sin|cos|tan|huza|ingano|inyuguti|inyuguti_nkuru|inyuguti_ntoya|tandukanya|ongera_kumusozo|siba_kumusozo|ifite_ikirango|ifite|kora_ijambo|injiza_ahabanza|siba_ahabanza|isaha|umunsi|itariki|soma|andika|vugurura|siba)\\b",
+      "match": "\\.\\s*(pi|umuzikare|umubare_utazwi|kuraho_ibice|sin|cos|tan|huza|ingano|inyuguti_nkuru|inyuguti_ntoya|inyuguti|tandukanya|ongera_kumusozo|siba_kumusozo|ifite_ikirango|ifite|kora_ijambo|injiza_ahabanza|siba_ahabanza|isaha|umunsi|itariki|soma|andika|vugurura|siba)\\b",
       "name": "support.function.member.kin"
     },
     {
