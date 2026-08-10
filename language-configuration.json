@@ -19,5 +19,30 @@
     ["(", ")"],
     ["\"", "\""]
   ],
-  "wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\'\\\"\\,\\.\\<\\>/\\?\\s]+)"
+  "wordPattern": "[A-Za-z_][A-Za-z0-9_]*",
+  "folding": {
+    "markers": {
+      "start": "^\\s*#\\s*region\\b",
+      "end": "^\\s*#\\s*endregion\\b"
+    }
+  },
+  "indentationRules": {
+    "increaseIndentPattern": "^((?!#).)*(\\{[^}\"']*|\\bgereranya\\b|\\busanze\\b.*:|\\bibindi\\s*:)\\s*(#.*)?$",
+    "decreaseIndentPattern": "^\\s*(\\}.*)$"
+  },
+  "onEnterRules": [
+    {
+      "beforeText": "^\\s*.*\\{\\s*(#.*)?$",
+      "afterText": "^\\s*\\}",
+      "action": { "indent": "indentOutdent" }
+    },
+    {
+      "beforeText": "^\\s*.*\\{\\s*(#.*)?$",
+      "action": { "indent": "indent" }
+    },
+    {
+      "beforeText": "^\\s*(gereranya\\b.*|usanze\\b.*:|ibindi\\s*:)\\s*(#.*)?$",
+      "action": { "indent": "indent" }
+    }
+  ]
 }
