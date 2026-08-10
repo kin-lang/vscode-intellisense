@@ -1,28 +1,48 @@
 {
   "comments": {
-    // symbol used for single line comment. Remove this entry if your language does not support line comments
     "lineComment": "#"
   },
-  // symbols used as brackets
   "brackets": [
     ["{", "}"],
     ["[", "]"],
     ["(", ")"]
   ],
-  // symbols that are auto closed when typing
   "autoClosingPairs": [
     ["{", "}"],
     ["[", "]"],
     ["(", ")"],
-    ["\"", "\""],
-    ["'", "'"]
+    ["\"", "\""]
   ],
-  // symbols that can be used to surround a selection
   "surroundingPairs": [
     ["{", "}"],
     ["[", "]"],
     ["(", ")"],
-    ["\"", "\""],
-    ["'", "'"]
+    ["\"", "\""]
+  ],
+  "wordPattern": "[A-Za-z_][A-Za-z0-9_]*",
+  "folding": {
+    "markers": {
+      "start": "^\\s*#\\s*region\\b",
+      "end": "^\\s*#\\s*endregion\\b"
+    }
+  },
+  "indentationRules": {
+    "increaseIndentPattern": "^((?!#).)*(\\{[^}\"']*|\\bgereranya\\b|\\busanze\\b.*:|\\bibindi\\s*:)\\s*(#.*)?$",
+    "decreaseIndentPattern": "^\\s*(\\}.*)$"
+  },
+  "onEnterRules": [
+    {
+      "beforeText": "^\\s*.*\\{\\s*(#.*)?$",
+      "afterText": "^\\s*\\}",
+      "action": { "indent": "indentOutdent" }
+    },
+    {
+      "beforeText": "^\\s*.*\\{\\s*(#.*)?$",
+      "action": { "indent": "indent" }
+    },
+    {
+      "beforeText": "^\\s*(gereranya\\b.*|usanze\\b.*:|ibindi\\s*:)\\s*(#.*)?$",
+      "action": { "indent": "indent" }
+    }
   ]
 }

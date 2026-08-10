@@ -1,0 +1,8 @@
+{
+  "name": "kin-vsce-tooling",
+  "private": true,
+  "description": "Local @vscode/vsce (npm 11 crashes resolving vsce 3.x).",
+  "dependencies": {
+    "@vscode/vsce": "2.32.0"
+  }
+}

@@ -1,22 +1,48 @@
 {
   "name": "kinlang",
   "displayName": "Kin Programming Language",
-  "description": "VS Code support for Kin Programming Language",
-  "version": "0.0.1",
+  "description": "Kin language support: syntax highlighting, diagnostics, completions, hover, and signature help.",
+  "version": "0.2.0",
   "icon": "images/logo.png",
+  "license": "Apache-2.0",
   "engines": {
-    "vscode": "^1.72.0"
+    "vscode": "^1.74.0"
   },
   "publisher": "pacifiquem",
+  "main": "./dist/extension.js",
+  "bin": {
+    "kin-lsp": "./dist/server/main.js"
+  },
   "scripts": {
-    "package": "vsce package"
+    "compile": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "compile:tests": "tsc -p tsconfig.test.json",
+    "test": "npm run compile && npm run compile:tests && node --test dist-test/tests/*.test.js",
+    "package": "npm run compile && node scripts/run-vsce.js package",
+    "publish:vsce": "node scripts/run-vsce.js publish"
   },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Linters",
+    "Snippets"
   ],
+  "keywords": [
+    "kin",
+    "kinlang",
+    "kinyarwanda",
+    "programming-language",
+    "lsp"
+  ],
+  "activationEvents": [
+    "onLanguage:kinlang"
+  ],
+  "homepage": "https://marketplace.visualstudio.com/items?itemName=pacifiquem.kinlang",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kin-lang/kin"
+    "url": "https://github.com/kin-lang/vscode-intellisense"
+  },
+  "bugs": {
+    "url": "https://github.com/kin-lang/vscode-intellisense/issues"
   },
   "contributes": {
     "languages": [
@@ -24,7 +50,8 @@
         "id": "kinlang",
         "aliases": [
           "Kin Programming Language",
-          "kinlang"
+          "kinlang",
+          "Kin"
         ],
         "extensions": [
           ".kin"
@@ -38,7 +65,39 @@
         "scopeName": "source.kin",
         "path": "./syntaxes/kinlang.tmLanguage.json"
       }
-    ]
+    ],
+    "commands": [
+      {
+        "command": "kinlang.runFile",
+        "title": "Kin: Koresha dosiye"
+      }
+    ],
+    "configuration": {
+      "title": "Kin",
+      "properties": {
+        "kinlang.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Trace communication between VS Code and the Kin language server."
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@kin-lang/kin": "^0.4.3",
+    "vscode-languageclient": "^8.1.0",
+    "vscode-languageserver": "^8.1.0",
+    "vscode-languageserver-textdocument": "^1.0.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@types/vscode": "^1.74.0",
+    "typescript": "^5.3.3"
   },
   "__metadata": {
     "publisherDisplayName": "kin"

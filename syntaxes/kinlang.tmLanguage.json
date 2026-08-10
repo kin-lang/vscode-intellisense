@@ -4,156 +4,106 @@
   "uuid": "2e12aebc-e05d-46b8-bece-9fe4cbf0fe3a",
   "patterns": [
     {
-      "match": "(?x)-?(?:0|[1-9]\\d*)(?:(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)?",
-      "name": "constant.numeric"
-    },
-    {
-      "begin": "'",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.definition.string.begin"
-        }
-      },
-      "end": "'",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.definition.string.end"
-        }
-      },
-      "name": "string.quoted.single",
-      "patterns": [
-        {
-          "include": "#escaped_char"
-        }
-      ]
+      "match": "#.*$",
+      "name": "comment.line.number-sign.kin"
     },
     {
       "begin": "\"",
       "beginCaptures": {
-        "0": {
-          "name": "punctuation.definition.string.begin"
-        }
+        "0": { "name": "punctuation.definition.string.begin.kin" }
       },
       "end": "\"",
       "endCaptures": {
-        "0": {
-          "name": "punctuation.definition.string.end"
-        }
+        "0": { "name": "punctuation.definition.string.end.kin" }
       },
-      "name": "string.quoted.double",
-      "patterns": [
-        {
-          "include": "#escaped_char"
-        }
-      ]
+      "name": "string.quoted.double.kin"
     },
     {
+      "match": "\\b(porogaramu_ntoya)\\s+([A-Za-z_][A-Za-z0-9_]*)",
       "captures": {
-        "1": {
-          "name": "punctuation.definition.comment"
-        }
-      },
-      "match": "\\A(#!).*$\\n?",
-      "name": "comment.line.shebang"
+        "1": { "name": "keyword.control.kin" },
+        "2": { "name": "entity.name.function.kin" }
+      }
     },
     {
-      "match": "#.*",
-      "name": "comment.line.number-sign"
-    },
-    {
-      "patterns": [
-        {
-          "match": "([a-zA-Z0-9_]+)\\s*\\((?:[^\\\\]|\\))*\\)",
-          "captures": {
-            "1": {
-              "name": "entity.name.function"
-            },
-            "2": {
-              "name": "punctuation.definition.parameter"
-            },
-            "3": {
-              "name": "variable.other.argument"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "match": "\\b(niba|nanone_niba|niba_byanze|subiramo_niba|porogaramu_ntoya|reka|ntahinduka|tanga|ubwoko|sisitemu|injiza_amakuru|tangaza_amakuru|gereranya|usanze|ibindi|KIN_AMAGAMBO|KIN_URUTONDE|KIN_INYANDIKO|KIN_IGIHE|KIN_IMIBARE)\\b",
-      "name": "keyword"
-    },
-    {
-      "match": "(?<!\\.)\\bikosa\\b",
-      "name": "constant.language.error"
-    },
-    {
-      "match": "(?<!\\.)\\bubusa\\b",
-      "name": "constant.language.null"
+      "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|hagarara|niba|nanone_niba|niba_byanze|gereranya|usanze|ibindi)\\b",
+      "name": "keyword.control.kin"
     },
     {
       "match": "(?<!\\.)\\b(nibyo|sibyo)\\b",
-      "name": "constant.language.boolean"
+      "name": "constant.language.boolean.kin"
     },
     {
-      "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\b(?=\\s*(?:[({\"']|\\[\\[))",
-      "name": "variable.other"
+      "match": "(?<!\\.)\\bubusa\\b",
+      "name": "constant.language.null.kin"
     },
     {
-      "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\\.)",
-      "name": "variable.property"
+      "match": "(?<!\\.)\\bikosa\\b",
+      "name": "constant.language.error.kin"
     },
     {
-      "match": "\\.(?=\\w)",
-      "name": "punctuation.accessor"
+      "match": "\\b(KIN_AMAGAMBO|KIN_URUTONDE|KIN_INYANDIKO|KIN_IGIHE|KIN_IMIBARE)\\b",
+      "name": "support.class.kin"
+    },
+    {
+      "match": "(?<!\\.)\\bfilename\\b",
+      "name": "constant.language.kin"
+    },
+    {
+      "match": "\\b(tangaza_amakuru|injiza_amakuru|sisitemu|ubwoko)\\b",
+      "name": "support.function.kin"
+    },
+    {
+      "match": "\\.\\s*(pi|umuzikare|umubare_utazwi|kuraho_ibice|sin|cos|tan|huza|ingano|inyuguti_nkuru|inyuguti_ntoya|inyuguti|tandukanya|ongera_kumusozo|siba_kumusozo|ifite_ikirango|ifite|kora_ijambo|injiza_ahabanza|siba_ahabanza|isaha|umunsi|itariki|soma|andika|vugurura|siba)\\b",
+      "name": "support.function.member.kin"
+    },
+    {
+      "match": "\\b-?(?:0|[1-9]\\d*)(?:\\.\\d+)?\\b",
+      "name": "constant.numeric.kin"
     },
     {
       "match": "==|!=|>=|<=|>|<",
-      "name": "keyword.operator.comparison"
+      "name": "keyword.operator.comparison.kin"
+    },
+    {
+      "match": "&&|\\|\\|",
+      "name": "keyword.operator.logical.kin"
+    },
+    {
+      "match": "(?<![A-Za-z0-9_])!(?!=)",
+      "name": "keyword.operator.logical.kin"
     },
     {
       "match": "\\+|-|\\*|/|%|\\^",
-      "name": "keyword.operator.arithmetic"
-    },
-    {
-      "match": "(?<!\\.)(!|\\&\\&|\\|\\|)",
-      "name": "keyword.operator.logical"
+      "name": "keyword.operator.arithmetic.kin"
     },
     {
       "match": "=",
-      "name": "keyword.operator.assignment"
+      "name": "keyword.operator.assignment.kin"
+    },
+    {
+      "match": "\\.",
+      "name": "punctuation.accessor.kin"
     },
     {
       "match": "\\[|\\]|\\(|\\)",
-      "name": "punctuation.delimiter"
+      "name": "punctuation.delimiter.kin"
     },
     {
-      "match": "{|}",
-      "name": "punctuation.definition.block"
+      "match": "\\{|\\}",
+      "name": "punctuation.definition.block.kin"
     },
     {
       "match": ";",
-      "name": "punctuation.terminator"
+      "name": "punctuation.terminator.kin"
     },
     {
       "match": ",",
-      "name": "punctuation.separator"
+      "name": "punctuation.separator.kin"
     },
     {
-      "include": "#escaped_char"
+      "match": ":",
+      "name": "punctuation.separator.key-value.kin"
     }
-  ],
-  "repository": {
-    "escaped_char": {
-      "patterns": [
-        {
-          "match": "\\\\[abfnrtvz\\\\\"'\\n]",
-          "name": "constant.character.escape"
-        },
-        {
-          "match": "\\\\.",
-          "name": "invalid.illegal.character.escape"
-        }
-      ]
-    }
-  }
+  ]
 }
