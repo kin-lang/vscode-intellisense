@@ -1,5 +1,8 @@
 import { Parser } from '@kin-lang/kin';
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver/node';
+import { isIdentifierToken, locateTokens } from './locate';
+import { recoverSource } from './shapes';
+import { analyze } from './scope';
 import { lineText } from './text';
 
 function wholeLineRange(text: string, lineNumber: number): {
@@ -51,20 +54,127 @@ export function parseDiagnostic(message: string, text: string): Diagnostic {
     range: tokenRange(text, lineNumber, token),
     message: clean || message,
     source: 'kin',
+    code: 'kin.parse',
+  };
+}
+
+function isIncompleteInput(text: string, message: string): boolean {
+  const trimmed = text.replace(/\s+$/g, '');
+  const danglingDot = /[A-Za-z0-9_\]]\s*\.\s*$/.test(trimmed);
+  const danglingCall = /[A-Za-z0-9_]\s*\(\s*$/.test(trimmed);
+  if (danglingDot && /dot|identifier|unexpected|illegal/i.test(message)) {
+    return true;
+  }
+  if (danglingCall && /unexpected|expected|error/i.test(message)) {
+    return true;
+  }
+  // Mid-line dangling `obj.`
+  if (
+    /[A-Za-z0-9_\]]\s*\.\s*$/m.test(text) &&
+    /dot|identifier|unexpected|illegal/i.test(message)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isConstNeedsValue(message: string): boolean {
+  return /Constant variables must be assigned a value/i.test(message);
+}
+
+/** `ntahinduka x;` — the parser throws without a line; locate it from tokens. */
+export function uninitializedConsts(text: string): Diagnostic[] {
+  const tokens = locateTokens(text);
+  const diags: Diagnostic[] = [];
+  for (let i = 0; i < tokens.length - 2; i++) {
+    if (tokens[i].lexeme !== 'ntahinduka') continue;
+    const name = tokens[i + 1];
+    const semi = tokens[i + 2];
+    if (!name || !semi) continue;
+    if (!isIdentifierToken(name)) continue;
+    if (semi.lexeme !== ';') continue;
+    diags.push({
+      severity: DiagnosticSeverity.Error,
+      range: {
+        start: { line: tokens[i].line, character: tokens[i].startChar },
+        end: {
+          line: semi.line,
+          character: semi.startChar + semi.length,
+        },
+      },
+      message:
+        `Constant \`${name.lexeme}\` must be assigned a value. / ntahinduka \`${name.lexeme}\` igomba agaciro.`,
+      source: 'kin',
+      code: 'kin.const-needs-value',
+    });
+  }
+  return diags;
+}
+
+function toLsp(
+  severity: DiagnosticSeverity,
+  range: { line: number; character: number; start: number; end: number },
+  message: string,
+  code: string,
+): Diagnostic {
+  const length = Math.max(0, range.end - range.start);
+  return {
+    severity,
+    range: {
+      start: { line: range.line, character: range.character },
+      end: { line: range.line, character: range.character + length },
+    },
+    message,
+    source: 'kin',
+    code,
   };
 }
 
 /**
- * Parse Kin source and return syntax diagnostics.
- * The Kin parser stops at the first error, so this yields 0 or 1 item.
+ * Parse Kin source and return diagnostics: 0+ parse errors plus an AST pass
+ * (redeclare, unresolved, assign to const, bad call, arity, after-tanga).
  */
 export function collectDiagnostics(text: string): Diagnostic[] {
+  const diags: Diagnostic[] = [];
+  const consts = uninitializedConsts(text);
+  diags.push(...consts);
+
+  let parseFailed = false;
   try {
-    const parser = new Parser();
-    parser.produceAST(text);
-    return [];
+    new Parser().produceAST(text);
   } catch (error) {
+    parseFailed = true;
     const message = error instanceof Error ? error.message : String(error);
-    return [parseDiagnostic(message, text)];
+    if (isConstNeedsValue(message)) {
+      if (consts.length === 0) {
+        diags.push(parseDiagnostic(message, text));
+      }
+    } else if (isIncompleteInput(text, message)) {
+      // Trailing `obj.` / `foo(` while typing — do not scream.
+    } else {
+      diags.push(parseDiagnostic(message, text));
+      // Still try a recovered parse so later semantic errors can show.
+      try {
+        new Parser().produceAST(recoverSource(text));
+      } catch {
+        // keep the original parse diagnostic only
+      }
+    }
   }
+
+  // Semantic pass on a (possibly recovered) AST.
+  if (!parseFailed || recoverSource(text) !== text || consts.length > 0) {
+    const analysis = analyze(text);
+    for (const issue of analysis.issues) {
+      const severity =
+        issue.severity === 'warning'
+          ? DiagnosticSeverity.Warning
+          : DiagnosticSeverity.Error;
+      diags.push(
+        toLsp(severity, issue.range, issue.message, issue.code),
+      );
+    }
+  }
+
+  return diags;
 }

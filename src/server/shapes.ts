@@ -11,12 +11,16 @@ export interface ObjectShape {
   properties: Map<string, PropertyInfo>;
 }
 
-type KinNode = {
+export type KinNode = {
   kind?: string;
   [key: string]: unknown;
 };
 
-function shapeFromLiteral(node: KinNode | undefined): ObjectShape | undefined {
+export function isNumericKey(key: string): boolean {
+  return /^\d+$/.test(key);
+}
+
+export function shapeFromLiteral(node: KinNode | undefined): ObjectShape | undefined {
   if (!node || node.kind !== 'ObjectLiteral') return undefined;
   const properties = new Map<string, PropertyInfo>();
   const props = (node.properties as KinNode[] | undefined) ?? [];
@@ -90,19 +94,45 @@ function walk(node: KinNode | undefined, env: Map<string, ObjectShape>): void {
   }
 }
 
+const MEMBER_CHAIN =
+  '[A-Za-z_][A-Za-z0-9_]*(?:\\s*(?:\\.\\s*[A-Za-z_][A-Za-z0-9_]*|\\[\\s*[^\\]\\n]+\\s*\\]))*';
+
 /**
- * Completing after `obj.` makes the file unparseable. Drop the open
- * `.member` so the earlier `reka obj = { ... }` still parses.
+ * Completing after `obj.` / `list[0].` makes the file unparseable. Drop the
+ * open `.member` so the earlier `reka obj = { ... }` still parses.
  */
 export function sourceForShapes(text: string, offset?: number): string {
   if (offset === undefined) return text;
   const head = text.slice(0, offset);
   const tail = text.slice(offset);
   const stripped = head.replace(
-    /([A-Za-z_][A-Za-z0-9_]*(?:\s*\.\s*[A-Za-z_][A-Za-z0-9_]*)*)\s*\.\s*([A-Za-z_][A-Za-z0-9_]*)?$/,
+    new RegExp(
+      `(${MEMBER_CHAIN})\\s*\\.\\s*([A-Za-z_][A-Za-z0-9_]*)?$`,
+    ),
     '$1',
   );
   return stripped + tail;
+}
+
+/**
+ * Drop dangling `.` / `(` that appear while typing so diagnostics do not
+ * scream at an incomplete member or call.
+ */
+export function recoverSource(text: string): string {
+  let src = text.replace(
+    new RegExp(`(${MEMBER_CHAIN})\\s*\\.\\s*$`, 'gm'),
+    '$1',
+  );
+  // Strip an incomplete call (`foo(`, `obj.m(1, `) so the rest of the file parses.
+  let prev = '';
+  while (src !== prev) {
+    prev = src;
+    src = src.replace(
+      /([A-Za-z_][A-Za-z0-9_]*(?:\s*\.\s*[A-Za-z_][A-Za-z0-9_]*)*)\s*\([^()]*$/gm,
+      '$1',
+    );
+  }
+  return src;
 }
 
 /** Object literals bound to names in this file (`reka obj = { ... }`). */
@@ -111,13 +141,22 @@ export function collectObjectShapes(
   offset?: number,
 ): Map<string, ObjectShape> {
   const env = new Map<string, ObjectShape>();
-  try {
-    const ast = new Parser().produceAST(
-      sourceForShapes(text, offset),
-    ) as unknown as KinNode;
-    walk(ast, env);
-  } catch {
-    // Incomplete / invalid source — still return whatever we got.
+  const candidates = [
+    offset !== undefined ? sourceForShapes(text, offset) : text,
+    recoverSource(offset !== undefined ? sourceForShapes(text, offset) : text),
+    recoverSource(text),
+  ];
+  const seen = new Set<string>();
+  for (const src of candidates) {
+    if (seen.has(src)) continue;
+    seen.add(src);
+    try {
+      const ast = new Parser().produceAST(src) as unknown as KinNode;
+      walk(ast, env);
+      return env;
+    } catch {
+      continue;
+    }
   }
   return env;
 }
