@@ -46,6 +46,32 @@ describe('completions', () => {
     );
   });
 
+  test('after a user object, offers that object’s members', () => {
+    const src = `porogaramu_ntoya add(a, b) {
+    tanga a + b
+}
+reka obj = {
+    addNumbers: add
+}
+obj.`;
+    const items = labels(src, src.length);
+    assert.ok(items.includes('addNumbers'), `got ${items.join(',')}`);
+    assert.ok(!items.includes('reka'));
+    assert.ok(!items.includes('umuzikare'));
+  });
+
+  test('nested object members after obj.key4.', () => {
+    const src = `reka obj = {
+    key4: {
+        sub_key: "x",
+        sub_obj: { inner: 1 }
+    }
+}
+obj.key4.`;
+    const items = labels(src, src.length).sort();
+    assert.deepEqual(items, ['sub_key', 'sub_obj']);
+  });
+
   test('memberNames helper lists KIN_IMIBARE methods', () => {
     assert.ok(memberNames('KIN_IMIBARE').includes('umuzikare'));
     assert.ok(memberNames('KIN_IMIBARE').includes('pi'));
@@ -95,6 +121,19 @@ describe('hover', () => {
 
   test('returns null for unknown identifiers', () => {
     assert.equal(collectHover('reka xyz = 1', 6), null);
+  });
+
+  test('documents a user object member bound to a function', () => {
+    const src = `porogaramu_ntoya add(a, b) {
+    tanga a + b
+}
+reka obj = { addNumbers: add }
+obj.addNumbers`;
+    const hover = collectHover(src, src.lastIndexOf('addNumbers') + 2);
+    const value = (hover!.contents as { value: string }).value;
+    assert.match(value, /obj\.addNumbers/);
+    assert.match(value, /addNumbers/);
+    assert.match(value, /`add`/);
   });
 });
 

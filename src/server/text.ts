@@ -78,9 +78,39 @@ export function symbolAt(
 
 /** `KIN_AMAGAMBO.` prefix just before offset, for member completion. */
 export function memberOwnerAt(text: string, offset: number): string | null {
-  const before = text.slice(0, offset);
-  const match = before.match(/([A-Za-z_][A-Za-z0-9_]*)\.\s*([A-Za-z_][A-Za-z0-9_]*)?$/);
-  return match ? match[1] : null;
+  const path = memberPathAt(text, offset);
+  return path && path.length > 0 ? path[0] : null;
+}
+
+/**
+ * Identifier chain before a trailing `.` (and optional partial member).
+ * `obj.addN|` → `['obj']`
+ * `obj.key4.|` → `['obj', 'key4']`
+ * `KIN_IMIBARE.|` → `['KIN_IMIBARE']`
+ */
+export function memberPathAt(text: string, offset: number): string[] | null {
+  let i = offset;
+  if (i > text.length) return null;
+
+  // Drop the partial member being typed (`addN` in `obj.addN`).
+  while (i > 0 && /[A-Za-z0-9_]/.test(text[i - 1])) i--;
+
+  const path: string[] = [];
+  while (i > 0) {
+    let look = i;
+    while (look > 0 && /\s/.test(text[look - 1])) look--;
+    if (look === 0 || text[look - 1] !== '.') break;
+    let end = look - 1;
+    while (end > 0 && /\s/.test(text[end - 1])) end--;
+    let start = end;
+    while (start > 0 && /[A-Za-z0-9_]/.test(text[start - 1])) start--;
+    const ident = text.slice(start, end);
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(ident)) break;
+    path.unshift(ident);
+    i = start;
+  }
+
+  return path.length > 0 ? path : null;
 }
 
 export interface CallContext {

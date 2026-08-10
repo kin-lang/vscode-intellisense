@@ -13,7 +13,11 @@ import {
   lookupSymbol,
   type KinSymbolDoc,
 } from './catalog';
-import { collectDeclaredNames, currentPrefix, memberOwnerAt } from './text';
+import {
+  collectObjectShapes,
+  resolveShape,
+} from './shapes';
+import { collectDeclaredNames, currentPrefix, memberPathAt } from './text';
 
 function kindOf(sym: KinSymbolDoc): CompletionItemKind {
   switch (sym.kind) {
@@ -70,12 +74,60 @@ function sortKey(sym: KinSymbolDoc): string {
   return `${rank[sym.kind] ?? '9'}_${sym.name}`;
 }
 
+function userPropertyItem(
+  key: string,
+  boundName: string | undefined,
+  nested: boolean,
+): CompletionItem {
+  const kind = nested
+    ? CompletionItemKind.Field
+    : boundName
+      ? CompletionItemKind.Method
+      : CompletionItemKind.Property;
+  const detail = boundName
+    ? `member of object → ${boundName}`
+    : nested
+      ? 'nested object'
+      : 'member of object';
+  return {
+    label: key,
+    kind,
+    detail,
+    documentation: boundName
+      ? {
+          kind: MarkupKind.Markdown,
+          value: `Property \`${key}\` is set to \`${boundName}\` in this file.`,
+        }
+      : undefined,
+    sortText: `0_${key}`,
+  };
+}
+
 export function collectCompletions(text: string, offset: number): CompletionItem[] {
-  const owner = memberOwnerAt(text, offset);
-  if (owner) {
-    const ns = lookupSymbol(owner);
+  const path = memberPathAt(text, offset);
+  if (path && path.length > 0) {
+    const ns = lookupSymbol(path[0]);
+    if (ns?.members && path.length === 1) {
+      return Object.values(ns.members).map((m) =>
+        toItem(m, `${path[0]}.${m.name}`),
+      );
+    }
+
+    const shapes = collectObjectShapes(text, offset);
+    const shape = resolveShape(shapes, path);
+    if (shape && shape.properties.size > 0) {
+      const typed = currentPrefix(text, offset).toLowerCase();
+      return [...shape.properties.values()]
+        .filter((prop) => !typed || prop.key.toLowerCase().startsWith(typed))
+        .map((prop) =>
+          userPropertyItem(prop.key, prop.boundName, !!prop.nested),
+        );
+    }
+
     if (ns?.members) {
-      return Object.values(ns.members).map((m) => toItem(m, `${owner}.${m.name}`));
+      return Object.values(ns.members).map((m) =>
+        toItem(m, `${path[0]}.${m.name}`),
+      );
     }
     return [];
   }
