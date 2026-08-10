@@ -1,5 +1,10 @@
 import * as path from 'path';
-import { ExtensionContext, workspace } from 'vscode';
+import {
+  commands,
+  ExtensionContext,
+  window,
+  workspace,
+} from 'vscode';
 import {
   LanguageClient,
   LanguageClientOptions,
@@ -8,6 +13,13 @@ import {
 } from 'vscode-languageclient/node';
 
 let client: LanguageClient | undefined;
+
+function shellQuote(value: string): string {
+  if (process.platform === 'win32') {
+    return `"${value.replace(/"/g, '\\"')}"`;
+  }
+  return `'${value.replace(/'/g, `'\\''`)}'`;
+}
 
 export function activate(context: ExtensionContext): void {
   const serverModule = context.asAbsolutePath(path.join('dist', 'server', 'main.js'));
@@ -36,6 +48,27 @@ export function activate(context: ExtensionContext): void {
     'Kin Language Server',
     serverOptions,
     clientOptions,
+  );
+
+  context.subscriptions.push(
+    commands.registerCommand('kinlang.runFile', async () => {
+      const editor = window.activeTextEditor;
+      if (!editor) {
+        void window.showWarningMessage(
+          'Nta dosiye ya Kin ifunguye. / No Kin file is open.',
+        );
+        return;
+      }
+      if (editor.document.isDirty) {
+        await editor.document.save();
+      }
+      const file = editor.document.uri.fsPath;
+      const term =
+        window.terminals.find((t) => t.name === 'Kin') ??
+        window.createTerminal('Kin');
+      term.show();
+      term.sendText(`kin run ${shellQuote(file)}`);
+    }),
   );
 
   client.start();

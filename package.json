@@ -66,6 +66,12 @@
         "path": "./syntaxes/kinlang.tmLanguage.json"
       }
     ],
+    "commands": [
+      {
+        "command": "kinlang.runFile",
+        "title": "Kin: Koresha dosiye"
+      }
+    ],
     "configuration": {
       "title": "Kin",
       "properties": {
