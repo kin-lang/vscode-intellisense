@@ -16,7 +16,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - run: yarn --frozen-lockfile --cwd tools/vsce
       - name: Publish VSIX
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: npx @vscode/vsce publish --pat "$VSCE_PAT"
+        run: npm run publish:vsce -- --pat "$VSCE_PAT"

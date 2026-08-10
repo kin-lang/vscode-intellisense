@@ -14,13 +14,12 @@
     "kin-lsp": "./dist/server/main.js"
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
     "compile:tests": "tsc -p tsconfig.test.json",
     "test": "npm run compile && npm run compile:tests && node --test dist-test/tests/*.test.js",
-    "package": "npm run compile && npx --yes @vscode/vsce package",
-    "publish:vsce": "npx --yes @vscode/vsce publish"
+    "package": "npm run compile && node scripts/run-vsce.js package",
+    "publish:vsce": "node scripts/run-vsce.js publish"
   },
   "categories": [
     "Programming Languages",

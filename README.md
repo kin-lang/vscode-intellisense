@@ -44,7 +44,8 @@ npm test
 ## Publish (maintainers)
 
 1. Bump `version` in `package.json` and add a `CHANGELOG.md` entry.
-2. `npm test` then `npm run package` (writes a `.vsix`).
+2. `npm test` then `npm run package` (writes `kinlang-X.Y.Z.vsix`).
+   First run installs `@vscode/vsce` with **yarn** under `tools/vsce` (npm 11 cannot resolve vsce 3.x).
 3. Publish:
    - GitHub Actions: **Actions → Publish to Marketplace → Run workflow** (needs repo secret `VSCE_PAT`), or
    - Locally: `VSCE_PAT=… npm run publish:vsce`

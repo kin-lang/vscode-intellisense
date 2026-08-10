@@ -2,6 +2,7 @@
 /dist
 /dist-test
 /coverage
+/tools/vsce/node_modules
 *.vsix
 .DS_Store
 # stray local programs; keep test fixtures

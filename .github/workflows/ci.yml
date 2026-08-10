@@ -17,4 +17,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npx @vscode/vsce package
+      - run: yarn --frozen-lockfile --cwd tools/vsce
+      - run: npm run package
