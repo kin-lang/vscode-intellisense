@@ -15,9 +15,21 @@ import {
 } from './catalog';
 import {
   collectObjectShapes,
+  isNumericKey,
   resolveShape,
 } from './shapes';
-import { collectDeclaredNames, currentPrefix, memberPathAt } from './text';
+import {
+  analyze,
+  bindingsInScope,
+  scopeAt,
+} from './scope';
+import {
+  currentPrefix,
+  inCommentOrString,
+  inGereranyaBody,
+  inIndexBrackets,
+  memberPathAt,
+} from './text';
 
 function kindOf(sym: KinSymbolDoc): CompletionItemKind {
   switch (sym.kind) {
@@ -85,10 +97,10 @@ function userPropertyItem(
       ? CompletionItemKind.Method
       : CompletionItemKind.Property;
   const detail = boundName
-    ? `member of object → ${boundName}`
+    ? `umunyamuryango → ${boundName} / member of object → ${boundName}`
     : nested
-      ? 'nested object'
-      : 'member of object';
+      ? 'igikubo / nested object'
+      : 'umunyamuryango / member of object';
   return {
     label: key,
     kind,
@@ -104,6 +116,9 @@ function userPropertyItem(
 }
 
 export function collectCompletions(text: string, offset: number): CompletionItem[] {
+  if (inCommentOrString(text, offset)) return [];
+  if (inIndexBrackets(text, offset)) return [];
+
   const path = memberPathAt(text, offset);
   if (path && path.length > 0) {
     const ns = lookupSymbol(path[0]);
@@ -117,7 +132,11 @@ export function collectCompletions(text: string, offset: number): CompletionItem
     const shape = resolveShape(shapes, path);
     if (shape && shape.properties.size > 0) {
       const typed = currentPrefix(text, offset).toLowerCase();
-      return [...shape.properties.values()]
+      const props = [...shape.properties.values()].filter(
+        (prop) => !isNumericKey(prop.key),
+      );
+      if (props.length === 0) return [];
+      return props
         .filter((prop) => !typed || prop.key.toLowerCase().startsWith(typed))
         .map((prop) =>
           userPropertyItem(prop.key, prop.boundName, !!prop.nested),
@@ -134,25 +153,51 @@ export function collectCompletions(text: string, offset: number): CompletionItem
 
   const prefix = currentPrefix(text, offset).toLowerCase();
   const items: CompletionItem[] = [];
+  const gereranya = inGereranyaBody(text, offset);
 
   for (const sym of allTopLevelSymbols()) {
     if (prefix && !sym.name.toLowerCase().startsWith(prefix)) continue;
-    items.push(toItem(sym));
+    const item = toItem(sym);
+    if (gereranya && (sym.name === 'usanze' || sym.name === 'ibindi')) {
+      item.sortText = `0_${sym.name}`;
+      item.detail = `${sym.detail} / gereranya`;
+    }
+    items.push(item);
   }
 
-  for (const name of collectDeclaredNames(text)) {
-    if (KEYWORD_NAMES.has(name)) continue;
-    if (lookupSymbol(name)) continue;
-    if (prefix && !name.toLowerCase().startsWith(prefix)) continue;
+  const analysis = analyze(text, offset);
+  const scope = scopeAt(analysis.root, offset);
+  for (const binding of bindingsInScope(scope, offset)) {
+    if (KEYWORD_NAMES.has(binding.name)) continue;
+    if (lookupSymbol(binding.name)) continue;
+    if (prefix && !binding.name.toLowerCase().startsWith(prefix)) continue;
     items.push({
-      label: name,
-      kind: CompletionItemKind.Variable,
-      detail: 'name in this file',
-      sortText: `6_${name}`,
+      label: binding.name,
+      kind:
+        binding.kind === 'function'
+          ? CompletionItemKind.Function
+          : binding.kind === 'const'
+            ? CompletionItemKind.Constant
+            : CompletionItemKind.Variable,
+      detail: detailForBinding(binding.kind),
+      sortText: `5_${binding.name}`,
     });
   }
 
   return items;
+}
+
+function detailForBinding(kind: string): string {
+  switch (kind) {
+    case 'function':
+      return 'porogaramu_ntoya muri iyi dosiye / function in this file';
+    case 'const':
+      return 'ntahinduka muri iyi dosiye / constant in this file';
+    case 'param':
+      return 'parametere / parameter';
+    default:
+      return 'izina muri iyi dosiye / name in this file';
+  }
 }
 
 /** Used by tests to resolve a member list without LSP types leaking. */

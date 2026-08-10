@@ -82,9 +82,53 @@ obj.key4.`;
     const src =
       'reka umurongo = 1\nporogaramu_ntoya ongeza(a, b) {\n\ttanga a\n}\n';
     const items = labels(src, src.length);
-    for (const name of ['umurongo', 'ongeza', 'a', 'b']) {
+    for (const name of ['umurongo', 'ongeza']) {
       assert.ok(items.includes(name), `missing ${name}`);
     }
+    assert.ok(!items.includes('a'), 'param a is not in file scope');
+    assert.ok(!items.includes('b'), 'param b is not in file scope');
+  });
+
+  test('offers function parameters only inside that function', () => {
+    const src =
+      'reka umurongo = 1\nporogaramu_ntoya ongeza(a, b) {\n\ttanga a\n}\n';
+    const inside = src.indexOf('\ttanga');
+    const items = labels(src, inside);
+    for (const name of ['umurongo', 'ongeza', 'a', 'b']) {
+      assert.ok(items.includes(name), `missing ${name} inside function`);
+    }
+  });
+
+  test('does not offer numeric keys after an array dot', () => {
+    const src = 'reka list = [10, 20]\nlist.';
+    const items = labels(src, src.length);
+    assert.ok(!items.includes('0'), `got ${items.join(',')}`);
+    assert.ok(!items.includes('1'));
+    assert.ok(!items.includes('reka'));
+  });
+
+  test('after ident[index]. offers the element object keys', () => {
+    const src = `reka list3 = [{key: "value", other: 1}]
+list3[0].`;
+    const items = labels(src, src.length).sort();
+    assert.deepEqual(items, ['key', 'other']);
+  });
+
+  test('offers nothing inside comments or strings', () => {
+    assert.deepEqual(labels('# reka\n', 4), []);
+    const src = 'reka s = "reka"';
+    assert.deepEqual(labels(src, src.indexOf('"') + 2), []);
+  });
+
+  test('prefers usanze and ibindi inside gereranya', () => {
+    const src = 'gereranya (x) {\n\t\n}';
+    const offset = src.indexOf('{') + 2;
+    const items = collectCompletions(src, offset);
+    const usanze = items.find((c) => c.label === 'usanze');
+    const reka = items.find((c) => c.label === 'reka');
+    assert.ok(usanze);
+    assert.ok(reka);
+    assert.ok((usanze!.sortText ?? '') < (reka!.sortText ?? '9'));
   });
 
   test('keyword snippets use snippet insert format', () => {
@@ -119,8 +163,24 @@ describe('hover', () => {
     assert.match(value, /square root/i);
   });
 
-  test('returns null for unknown identifiers', () => {
-    assert.equal(collectHover('reka xyz = 1', 6), null);
+  test('documents a user variable', () => {
+    const hover = collectHover('reka xyz = 1', 6);
+    assert.ok(hover);
+    const value = (hover.contents as { value: string }).value;
+    assert.match(value, /xyz/);
+    assert.match(value, /variable|reka/i);
+  });
+
+  test('documents a user function with its parameters', () => {
+    const src = `# add two numbers
+porogaramu_ntoya add(a, b) {
+    tanga a + b
+}
+add`;
+    const hover = collectHover(src, src.lastIndexOf('add') + 1);
+    const value = (hover!.contents as { value: string }).value;
+    assert.match(value, /porogaramu_ntoya add\(a, b\)/);
+    assert.match(value, /add two numbers/);
   });
 
   test('documents a user object member bound to a function', () => {
@@ -167,6 +227,29 @@ describe('signature help', () => {
 
   test('returns null outside a call', () => {
     assert.equal(collectSignatureHelp('reka x = 1', 8), null);
+  });
+
+  test('describes a user function', () => {
+    const src = `porogaramu_ntoya add(a, b) {
+    tanga a + b
+}
+add(`;
+    const help = collectSignatureHelp(src, src.length);
+    assert.ok(help);
+    assert.equal(help.signatures[0].label, 'add(a, b)');
+    assert.equal(help.activeParameter, 0);
+  });
+
+  test('describes obj.boundName via the user function', () => {
+    const src = `porogaramu_ntoya add(a, b) {
+    tanga a + b
+}
+reka obj = { addNumbers: add }
+obj.addNumbers(1, `;
+    const help = collectSignatureHelp(src, src.length);
+    assert.ok(help);
+    assert.match(help.signatures[0].label, /addNumbers\(a, b\)/);
+    assert.equal(help.activeParameter, 1);
   });
 });
 

@@ -18,14 +18,27 @@ import {
   SignatureHelpParams,
   SemanticTokensParams,
   DidChangeConfigurationNotification,
+  DefinitionParams,
+  ReferenceParams,
+  RenameParams,
+  PrepareRenameParams,
+  DocumentSymbolParams,
 } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { collectCompletions } from './completions';
 import { collectDiagnostics } from './diagnostics';
 import { collectHover } from './hover';
+import {
+  collectDefinition,
+  collectReferences,
+  collectRename,
+  prepareRename,
+} from './navigation';
 import { buildSemanticTokens, semanticTokensLegend } from './semanticTokens';
 import { collectSignatureHelp } from './signatureHelp';
+import { collectDocumentSymbols } from './symbols';
 import { offsetAt } from './text';
+import type { TextRange } from './scope';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
@@ -50,6 +63,10 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
         full: true,
         range: false,
       },
+      definitionProvider: true,
+      referencesProvider: true,
+      renameProvider: { prepareProvider: true },
+      documentSymbolProvider: true,
     },
     serverInfo: {
       name: 'kin-language-server',
@@ -102,6 +119,60 @@ connection.languages.semanticTokens.on((params: SemanticTokensParams) => {
     return { data: [] };
   }
   return buildSemanticTokens(doc.getText());
+});
+
+function lspRange(range: TextRange) {
+  const length = Math.max(0, range.end - range.start);
+  return {
+    start: { line: range.line, character: range.character },
+    end: { line: range.line, character: range.character + length },
+  };
+}
+
+connection.onDefinition((params: DefinitionParams) => {
+  const doc = documents.get(params.textDocument.uri);
+  if (!doc) return null;
+  const text = doc.getText();
+  const range = collectDefinition(text, offsetAt(text, params.position));
+  if (!range) return null;
+  return { uri: doc.uri, range: lspRange(range) };
+});
+
+connection.onReferences((params: ReferenceParams) => {
+  const doc = documents.get(params.textDocument.uri);
+  if (!doc) return [];
+  const text = doc.getText();
+  const include = params.context?.includeDeclaration !== false;
+  return collectReferences(text, offsetAt(text, params.position), include).map(
+    (range) => ({ uri: doc.uri, range: lspRange(range) }),
+  );
+});
+
+connection.onPrepareRename((params: PrepareRenameParams) => {
+  const doc = documents.get(params.textDocument.uri);
+  if (!doc) return null;
+  const text = doc.getText();
+  const range = prepareRename(text, offsetAt(text, params.position));
+  return range ? lspRange(range) : null;
+});
+
+connection.onRenameRequest((params: RenameParams) => {
+  const doc = documents.get(params.textDocument.uri);
+  if (!doc) return null;
+  const text = doc.getText();
+  const edits = collectRename(text, offsetAt(text, params.position), params.newName);
+  if (!edits) return null;
+  return {
+    changes: {
+      [doc.uri]: edits.map((e) => ({ range: lspRange(e.range), newText: e.newText })),
+    },
+  };
+});
+
+connection.onDocumentSymbol((params: DocumentSymbolParams) => {
+  const doc = documents.get(params.textDocument.uri);
+  if (!doc) return [];
+  return collectDocumentSymbols(doc.getText());
 });
 
 documents.listen(connection);

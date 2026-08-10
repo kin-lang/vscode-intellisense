@@ -82,11 +82,27 @@ export function memberOwnerAt(text: string, offset: number): string | null {
   return path && path.length > 0 ? path[0] : null;
 }
 
+function skipWsLeft(text: string, i: number): number {
+  while (i > 0 && /\s/.test(text[i - 1])) i--;
+  return i;
+}
+
+/** Turn `[0]` / `["key"]` into a property key, or null if we cannot resolve it. */
+export function indexKeyFromInner(inner: string): string | null {
+  const trimmed = inner.trim();
+  if (/^\d+$/.test(trimmed)) return trimmed;
+  const str = trimmed.match(/^"([^"]*)"$/);
+  if (str) return str[1];
+  return null;
+}
+
 /**
- * Identifier chain before a trailing `.` (and optional partial member).
+ * Identifier / index chain before a trailing `.` (and optional partial member).
  * `obj.addN|` → `['obj']`
  * `obj.key4.|` → `['obj', 'key4']`
  * `KIN_IMIBARE.|` → `['KIN_IMIBARE']`
+ * `list3[0].|` → `['list3', '0']`
+ * `obj["key4"].|` → `['obj', 'key4']`
  */
 export function memberPathAt(text: string, offset: number): string[] | null {
   let i = offset;
@@ -94,23 +110,123 @@ export function memberPathAt(text: string, offset: number): string[] | null {
 
   // Drop the partial member being typed (`addN` in `obj.addN`).
   while (i > 0 && /[A-Za-z0-9_]/.test(text[i - 1])) i--;
+  i = skipWsLeft(text, i);
+  if (i === 0 || text[i - 1] !== '.') return null;
+  i--; // consume the `.` that triggered member completion
 
   const path: string[] = [];
   while (i > 0) {
-    let look = i;
-    while (look > 0 && /\s/.test(text[look - 1])) look--;
-    if (look === 0 || text[look - 1] !== '.') break;
-    let end = look - 1;
-    while (end > 0 && /\s/.test(text[end - 1])) end--;
-    let start = end;
-    while (start > 0 && /[A-Za-z0-9_]/.test(text[start - 1])) start--;
-    const ident = text.slice(start, end);
-    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(ident)) break;
-    path.unshift(ident);
-    i = start;
+    i = skipWsLeft(text, i);
+    if (i === 0) break;
+
+    if (text[i - 1] === ']') {
+      const close = i - 1;
+      let depth = 1;
+      let j = close - 1;
+      while (j >= 0 && depth > 0) {
+        if (text[j] === '"' || text[j] === '#') break;
+        if (text[j] === ']') depth++;
+        else if (text[j] === '[') depth--;
+        j--;
+      }
+      if (depth !== 0) break;
+      const open = j + 1;
+      const key = indexKeyFromInner(text.slice(open + 1, close));
+      if (key === null) break;
+      path.unshift(key);
+      i = open;
+      continue;
+    }
+
+    if (/[A-Za-z0-9_]/.test(text[i - 1])) {
+      let start = i;
+      while (start > 0 && /[A-Za-z0-9_]/.test(text[start - 1])) start--;
+      const ident = text.slice(start, i);
+      if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(ident)) break;
+      path.unshift(ident);
+      i = start;
+      i = skipWsLeft(text, i);
+      if (i > 0 && text[i - 1] === '.') {
+        i--;
+        continue;
+      }
+      if (i > 0 && text[i - 1] === ']') continue;
+      break;
+    }
+
+    break;
   }
 
   return path.length > 0 ? path : null;
+}
+
+/** True when `offset` sits inside a `#` comment or a `"…"` string. */
+export function inCommentOrString(text: string, offset: number): boolean {
+  const clamped = Math.max(0, Math.min(offset, text.length));
+  const lineStart = text.lastIndexOf('\n', clamped - 1) + 1;
+  let inString = false;
+  for (let i = lineStart; i < clamped; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (ch === '"') inString = false;
+    } else if (ch === '"') {
+      inString = true;
+    } else if (ch === '#') {
+      return true;
+    }
+  }
+  return inString;
+}
+
+/**
+ * True when the innermost `{…}` around `offset` is a `gereranya` body
+ * (where `usanze` / `ibindi` are the legal arms).
+ */
+export function inGereranyaBody(text: string, offset: number): boolean {
+  const clamped = Math.max(0, Math.min(offset, text.length));
+  const stack: Array<'gereranya' | 'block'> = [];
+  let inString = false;
+  let i = 0;
+  while (i < clamped) {
+    const ch = text[i];
+    if (inString) {
+      if (ch === '"') inString = false;
+      else if (ch === '\n') inString = false;
+      i++;
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      i++;
+      continue;
+    }
+    if (ch === '#') {
+      while (i < clamped && text[i] !== '\n') i++;
+      continue;
+    }
+    if (ch === '{') {
+      const before = text.slice(0, i).replace(/\s+$/, '');
+      stack.push(/gereranya\s*\([^)]*\)\s*$/.test(before) ? 'gereranya' : 'block');
+      i++;
+      continue;
+    }
+    if (ch === '}') {
+      stack.pop();
+      i++;
+      continue;
+    }
+    i++;
+  }
+  return stack[stack.length - 1] === 'gereranya';
+}
+
+/** True when the cursor is inside `ident[ … ]` (index, not a member). */
+export function inIndexBrackets(text: string, offset: number): boolean {
+  if (inCommentOrString(text, offset)) return false;
+  if (memberPathAt(text, offset)) return false;
+  let i = offset;
+  while (i > 0 && /[A-Za-z0-9_"\s]/.test(text[i - 1])) i--;
+  return i > 0 && text[i - 1] === '[';
 }
 
 export interface CallContext {

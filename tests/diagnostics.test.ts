@@ -42,7 +42,55 @@ describe('diagnostics', () => {
   test('reports a parser error for a constant without a value', () => {
     const diags = collectDiagnostics('ntahinduka x;');
     assert.equal(diags.length, 1);
-    assert.match(diags[0].message, /Constant variables must be assigned/);
+    assert.match(diags[0].message, /Constant/);
+    assert.match(diags[0].message, /must be assigned/);
+    assert.equal(diags[0].range.start.line, 0);
+    assert.equal(diags[0].code, 'kin.const-needs-value');
+  });
+
+  test('places ntahinduka-without-value on the correct line', () => {
+    const src = 'reka a = 1\nntahinduka x;\n';
+    const diags = collectDiagnostics(src);
+    const hit = diags.find((d) => d.code === 'kin.const-needs-value');
+    assert.ok(hit);
+    assert.equal(hit!.range.start.line, 1);
+  });
+
+  test('does not error on a trailing obj. while typing', () => {
+    const src = 'reka obj = { a: 1 }\nobj.\n';
+    const errors = collectDiagnostics(src).filter(
+      (d) => d.severity === 1 /* Error */,
+    );
+    assert.deepEqual(errors, []);
+  });
+
+  test('reports redeclare, unresolved, assign-to-const, arity, and after-tanga', () => {
+    const src = `reka x = 1
+reka x = 2
+ntahinduka c = 1
+c = 3
+y
+porogaramu_ntoya add(a, b) {
+    tanga a + b
+    tangaza_amakuru(a)
+}
+add(1)
+nibyo()
+`;
+    const diags = collectDiagnostics(src);
+    const codes = diags.map((d) => d.code);
+    assert.ok(codes.includes('kin.redeclare'), `codes ${codes.join(',')}`);
+    assert.ok(codes.includes('kin.unresolved'));
+    assert.ok(codes.includes('kin.assign-to-const'));
+    assert.ok(codes.includes('kin.arity'));
+    assert.ok(codes.includes('kin.not-callable'));
+    assert.ok(codes.includes('kin.after-tanga'));
+    assert.ok(diags.length >= 6);
+  });
+
+  test('reports injiza_amakuru arity from the catalog', () => {
+    const diags = collectDiagnostics('injiza_amakuru()');
+    assert.ok(diags.some((d) => d.code === 'kin.arity'));
   });
 
   test('reports unexpected token after a bad statement', () => {

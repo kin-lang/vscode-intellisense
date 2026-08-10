@@ -117,6 +117,10 @@ describe('kin-lsp over stdio', () => {
       assert.ok(result.capabilities.completionProvider);
       assert.ok(result.capabilities.signatureHelpProvider);
       assert.ok(result.capabilities.semanticTokensProvider);
+      assert.equal(result.capabilities.definitionProvider, true);
+      assert.ok(result.capabilities.referencesProvider);
+      assert.ok(result.capabilities.renameProvider);
+      assert.equal(result.capabilities.documentSymbolProvider, true);
 
       lsp.notify('initialized', {});
 
