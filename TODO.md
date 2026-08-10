@@ -1,5 +1,7 @@
 # vscode-intellisense gaps (strict review)
 
+**Progress (2026-08-10, not merged):** two agents landed most P0/P1 on `feat/lsp-v0.2.0` (74 tests). Remaining: publish local Kin so `hagarara` matches (P0.1), full parse recovery, formatter, call hierarchy. See PR https://github.com/kin-lang/vscode-intellisense/pull/8
+
 Generated against Kin implementation + wiki translations + gopls-class IDE bar.
 
 Scope: `kin/` (lexer/parser/runtime/grammar/examples), `vscode-intellisense/` (LSP + TextMate + tests), `wiki/src/pages/` (EN + RW). Comparison bar is gopls / VS Code Go, mapped to Kin’s actual surface (no modules, no types, no interfaces). This is not a compliment sheet. Working features are one line in a matrix.
