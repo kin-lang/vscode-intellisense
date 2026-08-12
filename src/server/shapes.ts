@@ -21,7 +21,24 @@ export function isNumericKey(key: string): boolean {
 }
 
 export function shapeFromLiteral(node: KinNode | undefined): ObjectShape | undefined {
-  if (!node || node.kind !== 'ObjectLiteral') return undefined;
+  if (!node) return undefined;
+
+  if (node.kind === 'ArrayLiteral') {
+    const properties = new Map<string, PropertyInfo>();
+    const elements = (node.elements as KinNode[] | undefined) ?? [];
+    elements.forEach((value, index) => {
+      const key = String(index);
+      const nested = shapeFromLiteral(value);
+      const boundName =
+        value?.kind === 'Identifier' ? (value.symbol as string) : undefined;
+      properties.set(key, { key, boundName, nested });
+    });
+    // Still record a shape for nested completion after list[0]. even though
+    // numeric keys are not offered after a bare list. in the completion UI.
+    return { properties };
+  }
+
+  if (node.kind !== 'ObjectLiteral') return undefined;
   const properties = new Map<string, PropertyInfo>();
   const props = (node.properties as KinNode[] | undefined) ?? [];
   for (const prop of props) {

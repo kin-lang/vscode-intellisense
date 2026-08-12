@@ -5,6 +5,13 @@ import { recoverSource } from './shapes';
 import { analyze } from './scope';
 import { lineText } from './text';
 
+type SpanLike = {
+  line?: number;
+  column?: number;
+  start?: number;
+  end?: number;
+};
+
 function wholeLineRange(text: string, lineNumber: number): {
   start: { line: number; character: number };
   end: { line: number; character: number };
@@ -36,6 +43,27 @@ function tokenRange(
   return wholeLineRange(text, lineNumber);
 }
 
+function spanToRange(
+  text: string,
+  span: SpanLike | undefined,
+): { start: { line: number; character: number }; end: { line: number; character: number } } {
+  if (!span || span.line === undefined) {
+    return wholeLineRange(text, 1);
+  }
+  const line = Math.max(0, (span.line ?? 1) - 1);
+  const character = Math.max(0, (span.column ?? 1) - 1);
+  const length =
+    span.start !== undefined && span.end !== undefined
+      ? Math.max(1, span.end - span.start)
+      : 1;
+  const content = lineText(text, line);
+  const endChar = Math.min(content.length, character + length);
+  return {
+    start: { line, character },
+    end: { line, character: Math.max(character + 1, endChar) },
+  };
+}
+
 export function parseDiagnostic(message: string, text: string): Diagnostic {
   const lineMatch =
     message.match(/On line\s+(\d+)/i) || message.match(/at line\s+(\d+)/i);
@@ -62,16 +90,15 @@ function isIncompleteInput(text: string, message: string): boolean {
   const trimmed = text.replace(/\s+$/g, '');
   const danglingDot = /[A-Za-z0-9_\]]\s*\.\s*$/.test(trimmed);
   const danglingCall = /[A-Za-z0-9_]\s*\(\s*$/.test(trimmed);
-  if (danglingDot && /dot|identifier|unexpected|illegal/i.test(message)) {
+  if (danglingDot && /dot|identifier|unexpected|illegal|kitazwi/i.test(message)) {
     return true;
   }
-  if (danglingCall && /unexpected|expected|error/i.test(message)) {
+  if (danglingCall && /unexpected|expected|error|biteganyijwe|kitazwi/i.test(message)) {
     return true;
   }
-  // Mid-line dangling `obj.`
   if (
     /[A-Za-z0-9_\]]\s*\.\s*$/m.test(text) &&
-    /dot|identifier|unexpected|illegal/i.test(message)
+    /dot|identifier|unexpected|illegal|kitazwi/i.test(message)
   ) {
     return true;
   }
@@ -79,10 +106,12 @@ function isIncompleteInput(text: string, message: string): boolean {
 }
 
 function isConstNeedsValue(message: string): boolean {
-  return /Constant variables must be assigned a value/i.test(message);
+  return /Constant variables must be assigned a value|ntahinduka igomba/i.test(
+    message,
+  );
 }
 
-/** `ntahinduka x;` — the parser throws without a line; locate it from tokens. */
+/** `ntahinduka x;` — locate from tokens when needed. */
 export function uninitializedConsts(text: string): Diagnostic[] {
   const tokens = locateTokens(text);
   const diags: Diagnostic[] = [];
@@ -130,6 +159,24 @@ function toLsp(
   };
 }
 
+function kinErrorDiagnostic(error: unknown, text: string): Diagnostic | null {
+  if (!error || typeof error !== 'object') return null;
+  const e = error as {
+    message?: string;
+    code?: string;
+    span?: SpanLike;
+  };
+  if (!e.message) return null;
+  if (isIncompleteInput(text, e.message)) return null;
+  return {
+    severity: DiagnosticSeverity.Error,
+    range: spanToRange(text, e.span),
+    message: e.message,
+    source: 'kin',
+    code: typeof e.code === 'string' ? e.code : 'kin.parse',
+  };
+}
+
 /**
  * Parse Kin source and return diagnostics: 0+ parse errors plus an AST pass
  * (redeclare, unresolved, assign to const, bad call, arity, after-tanga).
@@ -140,29 +187,57 @@ export function collectDiagnostics(text: string): Diagnostic[] {
   diags.push(...consts);
 
   let parseFailed = false;
-  try {
-    new Parser().produceAST(text);
-  } catch (error) {
-    parseFailed = true;
-    const message = error instanceof Error ? error.message : String(error);
-    if (isConstNeedsValue(message)) {
-      if (consts.length === 0) {
-        diags.push(parseDiagnostic(message, text));
+  const parser = new Parser() as Parser & {
+    parse?: (source: string) => {
+      program: unknown;
+      diagnostics: Array<{ severity: string; error: unknown }>;
+    };
+  };
+
+  if (typeof parser.parse === 'function') {
+    try {
+      const { diagnostics } = parser.parse(text);
+      for (const d of diagnostics) {
+        const diag = kinErrorDiagnostic(d.error, text);
+        if (diag) {
+          parseFailed = true;
+          if (isConstNeedsValue(diag.message) && consts.length > 0) continue;
+          diags.push(diag);
+        }
       }
-    } else if (isIncompleteInput(text, message)) {
-      // Trailing `obj.` / `foo(` while typing — do not scream.
-    } else {
-      diags.push(parseDiagnostic(message, text));
-      // Still try a recovered parse so later semantic errors can show.
-      try {
-        new Parser().produceAST(recoverSource(text));
-      } catch {
-        // keep the original parse diagnostic only
+    } catch (error) {
+      // Lexer faults still throw before recovery starts.
+      parseFailed = true;
+      const message = error instanceof Error ? error.message : String(error);
+      if (!isIncompleteInput(text, message)) {
+        const fromKin = kinErrorDiagnostic(error, text);
+        diags.push(fromKin ?? parseDiagnostic(message, text));
+      }
+    }
+  } else {
+    try {
+      new Parser().produceAST(text);
+    } catch (error) {
+      parseFailed = true;
+      const message = error instanceof Error ? error.message : String(error);
+      if (isConstNeedsValue(message)) {
+        if (consts.length === 0) {
+          diags.push(parseDiagnostic(message, text));
+        }
+      } else if (isIncompleteInput(text, message)) {
+        // Trailing `obj.` / `foo(` while typing
+      } else {
+        const fromKin = kinErrorDiagnostic(error, text);
+        diags.push(fromKin ?? parseDiagnostic(message, text));
+        try {
+          new Parser().produceAST(recoverSource(text));
+        } catch {
+          // keep the original parse diagnostic only
+        }
       }
     }
   }
 
-  // Semantic pass on a (possibly recovered) AST.
   if (!parseFailed || recoverSource(text) !== text || consts.length > 0) {
     const analysis = analyze(text);
     for (const issue of analysis.issues) {
@@ -170,9 +245,7 @@ export function collectDiagnostics(text: string): Diagnostic[] {
         issue.severity === 'warning'
           ? DiagnosticSeverity.Warning
           : DiagnosticSeverity.Error;
-      diags.push(
-        toLsp(severity, issue.range, issue.message, issue.code),
-      );
+      diags.push(toLsp(severity, issue.range, issue.message, issue.code));
     }
   }
 
