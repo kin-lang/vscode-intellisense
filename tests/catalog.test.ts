@@ -21,6 +21,7 @@ describe('Kin language catalog', () => {
         'gereranya',
         'hagarara',
         'ibindi',
+        'komeza',
         'nanone_niba',
         'niba',
         'niba_byanze',
@@ -159,8 +160,7 @@ describe('Kin language catalog', () => {
     assert.match(ubwoko, /not `umubare`|si `umubare`/);
 
     const ifite = formatMarkdown(lookupMember('KIN_URUTONDE', 'ifite')!);
-    assert.match(ifite, /first element/i);
-    assert.match(ifite, /igice cya mbere/);
+    assert.match(ifite, /any element|icyo ari cyo cyose/i);
 
     const itariki = formatMarkdown(lookupMember('KIN_IGIHE', 'itariki')!);
     assert.match(itariki, /Do MMM YY/);

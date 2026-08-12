@@ -96,11 +96,11 @@ export const KEYWORDS: KinSymbolDoc[] = [
     kind: 'keyword',
     detail: 'If',
     documentation:
-      'Runs the block when the condition is `nibyo` (true). ' +
+      'Runs the block when the condition is truthy. `sibyo`, `ubusa`, and `0` are false; everything else is true. ' +
       'Chain with `nanone_niba` (else-if: a **new** condition) and finish with `niba_byanze` (else: no condition). ' +
       'The `niba` / `niba_byanze` body runs in a fresh scope.',
     documentation_rw:
-      '`niba` gikora igice cya kode iyo igipimo ari `nibyo` (ukuri). ' +
+      '`niba` gikora igice cya kode iyo igipimo ari ukuri (truthy). `sibyo`, `ubusa`, n’`0` ni ukinyoma; ibindi byose ni ukuri. ' +
       'Ushobora gukomeza na `nanone_niba` (nanone niba: igipimo **gishya**) hanyuma kurangiza na `niba_byanze` (niba byanze: nta gipimo). ' +
       'Umubiri wa `niba` / `niba_byanze` ukorera mu rwego rushya rw’amazina.',
     snippet: 'niba (${1:nibyo}) {\n\t$0\n}',
@@ -136,12 +136,12 @@ export const KEYWORDS: KinSymbolDoc[] = [
     kind: 'keyword',
     detail: 'While loop',
     documentation:
-      'Repeats the block while the condition is `nibyo`. Check the condition yourself ' +
-      '(there is no `for`). Use `hagarara` inside the loop to leave early. ' +
+      'Repeats the block while the condition is truthy (`sibyo`, `ubusa`, and `0` are false). ' +
+      'Use `hagarara` to leave early and `komeza` to skip to the next iteration. ' +
       'Each iteration (and the loop itself) uses a fresh scope.',
     documentation_rw:
-      '`subiramo_niba` gisubiramo igice cya kode igihe igipimo kikiri `nibyo`. ' +
-      'Ugenzura igipimo ubwawe (nta `for`). Kuvamo hakiri kare ukoresha `hagarara` mu kigeragezo. ' +
+      '`subiramo_niba` gisubiramo igice cya kode igihe igipimo kikiri ukuri (`sibyo`, `ubusa`, n’`0` ni ukinyoma). ' +
+      'Kuvamo hakiri kare ukoresha `hagarara`; gusimbuka kigeragezo ukoresha `komeza`. ' +
       'Buri kigeragezo (n’uruziga rwose) rukorera mu rwego rushya.',
     snippet:
       'subiramo_niba (${1:i} < ${2:10}) {\n\t$0\n\t${1:i} = ${1:i} + 1\n}',
@@ -161,6 +161,17 @@ export const KEYWORDS: KinSymbolDoc[] = [
       'Iki ni **ijambo ry’ingenzi** (break), si umumaro uhagarika porogaramu ya Kin. ' +
       '`globals.ts` iracyandika umumaro `hagarara(code)` waka `process.exit`, ' +
       'ariko lexer ihora ifata `hagarara` nk’iki jambo, bityo uwo murimo wo kuva muri porogaramu ntushobora guhamagarwa mu kode.',
+  },
+  {
+    name: 'komeza',
+    kind: 'keyword',
+    detail: 'Continue the next loop iteration',
+    documentation:
+      'Skips the rest of the current `subiramo_niba` iteration and checks the condition again. ' +
+      'A semicolon after it is optional. Only valid inside a loop body.',
+    documentation_rw:
+      '`komeza` gisimbuka ibisigaye by’ako kigeragezo cya `subiramo_niba` hanyuma gisuzuma condition inshuro ikurikira. ' +
+      'Akadomo `;` nyuma yacyo si ngombwa. Gikoreshwa gusa mu mubiri w’uruziga.',
   },
   {
     name: 'gereranya',
@@ -198,10 +209,10 @@ export const KEYWORDS: KinSymbolDoc[] = [
     detail: 'Switch default',
     documentation:
       'Default arm of `gereranya`. Runs when no `usanze` matched. Must be last. ' +
-      'If it is the only arm, the current parser drops its body.',
+      'If it is the only arm, that body still runs.',
     documentation_rw:
       '`ibindi` ni ukuboko rusange kwa `gereranya`. Gikora iyo nta `usanze` yahuye. Kigomba kuba iheruka. ' +
-      'Niba ari ko gusa, parser yaubu isiba umubiri wacyo.',
+      'Niba ari ko gusa, umubiri wacyo ukora.',
     snippet: 'ibindi:\n\t$0',
   },
 ];
@@ -297,12 +308,10 @@ const UBWOKO: KinSymbolDoc = {
   detail: 'Runtime type of a value',
   documentation:
     'Returns the Kin runtime type name of its argument as a **string**. For `ubwoko(5)` that string is `"number"`, ' +
-    'not `umubare`. Other values: `"string"`, `"boolean"`, `"object"`, `"fn"`, `"native-fn"`, or `"null"`.\n\n' +
-    'Arrays are `"object"` (they are maps keyed `"0"`, `"1"`, …).',
+    'not `umubare`. Other values: `"string"`, `"boolean"`, `"object"`, `"urutonde"` (arrays), `"fn"`, `"native-fn"`, or `"null"`.',
   documentation_rw:
     '`ubwoko` isubiza **ijambo** (string) ry’ubwoko bwa runtime: kuri `ubwoko(5)` ni `"number"`, ' +
-    'si `umubare`. Izindi: `"string"`, `"boolean"`, `"object"`, `"fn"`, `"native-fn"`, cyangwa `"null"`.\n\n' +
-    'Urutonde ni `"object"` (ni ikarita ifite imfunguzo `"0"`, `"1"`, …).',
+    'si `umubare`. Izindi: `"string"`, `"boolean"`, `"object"`, `"urutonde"` (urutonde), `"fn"`, `"native-fn"`, cyangwa `"null"`.',
   args: [
     {
       name: 'value',
@@ -655,11 +664,11 @@ const KIN_AMAGAMBO: KinSymbolDoc = {
       kind: 'method',
       detail: 'Split a string',
       documentation:
-        'Splits `text` on `separator` and returns an array (object keyed `"0"`, `"1"`, …). ' +
+        'Splits `text` on `separator` and returns an array (`urutonde`). ' +
         'Printing the whole result shows `[Object Object]` — read `result[0]`, `result[1]`, … instead. ' +
         'Use `""` as separator to split into characters.',
       documentation_rw:
-        '`tandukanya` itandukanya `text` ku `separator` isubiza urutonde (icyegeranyo gifite `"0"`, `"1"`, …). ' +
+        '`tandukanya` itandukanya `text` ku `separator` isubiza urutonde. ' +
         'Kuyandika yose bigaragaza `[Object Object]` — soma `result[0]`, `result[1]`, … ' +
         'Koresha `""` nka separator kugira ngo utandukanye ku nyuguti.',
       args: [
@@ -678,7 +687,7 @@ const KIN_AMAGAMBO: KinSymbolDoc = {
           documentation_rw: 'Ikimenyetso gitandukanya. Koresha `""` kugira ngo utandukanye ku nyuguti.',
         },
       ],
-      returns: 'array (object)',
+      returns: 'urutonde',
       example: 'KIN_AMAGAMBO.tandukanya("a,b,c", ",")',
     },
   },
@@ -689,11 +698,11 @@ const KIN_URUTONDE: KinSymbolDoc = {
   kind: 'namespace',
   detail: 'Array helpers',
   documentation:
-    'Kin arrays are objects whose keys are `"0"`, `"1"`, `"2"`, … ' +
+    'Kin arrays are a dedicated array type (`ubwoko` returns `urutonde`). ' +
     'These helpers treat that shape as a list. Access elements with `urutonde[0]`, not `urutonde.0`. ' +
     'A namespace, not a call — write `KIN_URUTONDE.ingano(list)`.',
   documentation_rw:
-    'Urutonde rwa Kin ni icyegeranyo gifite imfunguzo `"0"`, `"1"`, `"2"`, … ' +
+    'Urutonde rwa Kin ni ubwoko bwihariye (`ubwoko` isubiza `urutonde`). ' +
     'Iyi mimaro iyifata nk’urutonde. Injira mu bice ukoresheje `urutonde[0]`, si `urutonde.0`. ' +
     'Ni umuryango, si umumaro — andika `KIN_URUTONDE.ingano(list)`.',
   members: {
@@ -816,10 +825,10 @@ const KIN_URUTONDE: KinSymbolDoc = {
       detail: 'Has key',
       documentation:
         'True if `list` has a property named `key` (for arrays, keys are `"0"`, `"1"`, …). ' +
-        'This checks the **key**, not the value. Use `ifite` (with the first-element caveat) for a value.',
+        'This checks the **key**, not the value. Use `ifite` for a value.',
       documentation_rw:
         '`ifite_ikirango` ni `nibyo` niba `list` ifite ikirango (`key`) — ku rutonde ni `"0"`, `"1"`, … ' +
-        'Igenzura **ikirango**, si agaciro. Kugenzura agaciro koresha `ifite` (reba icyitonderwa cy’igice cya mbere).',
+        'Igenzura **ikirango**, si agaciro. Kugenzura agaciro koresha `ifite`.',
       args: [
         {
           name: 'list',
@@ -841,15 +850,13 @@ const KIN_URUTONDE: KinSymbolDoc = {
     ifite: {
       name: 'ifite',
       kind: 'method',
-      detail: 'Contains value (first only)',
+      detail: 'Contains value',
       documentation:
-        'Compares `value` to the **first element only** — it does **not** scan the rest of the list. ' +
-        '`KIN_URUTONDE.ifite(["Hello", "World"], "Hello")` is `nibyo` because `"Hello"` is first; ' +
-        '`KIN_URUTONDE.ifite(["Hello", "World"], "World")` is `sibyo` today. Documented as the runtime behaves.',
+        'Returns `nibyo` when any element equals `value` (by runtime value). ' +
+        'Also available as `list.ifite(value)`.',
       documentation_rw:
-        '`ifite` igereranya `value` n’**igice cya mbere gusa** — **ntisuzuma** ibisigaye by’urutonde. ' +
-        '`KIN_URUTONDE.ifite(["Hello", "World"], "Hello")` ni `nibyo` kuko `"Hello"` iri imbere; ' +
-        '`KIN_URUTONDE.ifite(["Hello", "World"], "World")` ni `sibyo` ubu. Twanditse uko runtime ikora.',
+        'Isubiza `nibyo` iyo hari igice icyo ari cyo cyose kingana na `value` (ku gaciro ka runtime). ' +
+        'Ihaboneka kandi nka `list.ifite(value)`.',
       args: [
         {
           name: 'list',
@@ -862,8 +869,8 @@ const KIN_URUTONDE: KinSymbolDoc = {
           name: 'value',
           type: 'string',
           required: true,
-          documentation: 'Value to look for (compared via `.value` of the first element).',
-          documentation_rw: 'Agaciro ushakisha (kigereranywa na `.value` y’igice cya mbere).',
+          documentation: 'Value to look for.',
+          documentation_rw: 'Agaciro ushakisha.',
         },
       ],
       returns: 'boolean',

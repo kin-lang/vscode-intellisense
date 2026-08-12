@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- Align with Kin 0.5.0: `komeza`, array type (`urutonde`), full-list `ifite`, multi-error parse diagnostics with source spans.
+- Catalog and TextMate updates for current keywords and runtime behaviour.
+
 ## 0.2.0
 
 Language server and highlighting overhaul. Closes [#5](https://github.com/kin-lang/vscode-intellisense/issues/5) and [#6](https://github.com/kin-lang/vscode-intellisense/issues/6).
