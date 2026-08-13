@@ -436,7 +436,33 @@ export function analyze(text: string, offset?: number): Analysis {
       }
       case 'TypeAliasDeclaration': {
         // Types live in a separate namespace; skip value bindings.
-        // Still walk children so nested tokens are not left unclaimed.
+        return;
+      }
+      case 'ClassDeclaration': {
+        const name = node.name as string;
+        const nameTok = take(name);
+        const range = nameTok
+          ? rangeFromToken(nameTok)
+          : rangeFromOffsets(text, 0, 0);
+        const binding: Binding = {
+          name,
+          kind: 'const',
+          constant: true,
+          range,
+          inferred: 'function',
+        };
+        if (nameTok) {
+          recordUse({ name, range, role: 'decl', binding });
+        }
+        declare(scope, binding, range);
+        // Methods / constructor bodies: walk for nested symbols.
+        const ctor = node.constructor as KinNode | undefined;
+        if (ctor) {
+          for (const stmt of (ctor.body as KinNode[]) ?? []) walk(stmt, scope);
+        }
+        for (const m of (node.methods as KinNode[]) ?? []) {
+          for (const stmt of (m.body as KinNode[]) ?? []) walk(stmt, scope);
+        }
         return;
       }
       case 'FunctionDeclaration': {

@@ -8,6 +8,7 @@ program ::= statement*
 
 statement ::= variableDeclaration
             | typeAliasDeclaration
+            | classDeclaration
             | functionDeclaration
             | loopStatement
             | breakStatement
@@ -26,6 +27,15 @@ variableDeclaration ::= "reka" identifier typeAnnotation? (";" | "=" expression)
                       | "ntahinduka" identifier typeAnnotation? "=" expression
 
 typeAliasDeclaration ::= "ubwoko" identifier "=" typeExpression
+
+; OOP (see kin/examples/oop and kin/grammar.bnf)
+classDeclaration ::= "imiterere" identifier ("ikomoka" identifier)? "{" classMember* "}"
+classMember ::= constructorDecl | methodDecl
+constructorDecl ::= "tegura" "(" parameterList? ")" "{" (fieldInit | statement)* "}"
+fieldInit ::= ("rusange" | "bwite") "_" "." identifier "=" expression
+methodDecl ::= ("rusange" | "bwite") "porogaramu_ntoya" identifier
+               "(" parameterList? ")" typeAnnotation? block
+remaExpression ::= "rema" memberExpression "(" argumentList? ")" memberOrCall*
 
 typeAnnotation ::= ":" typeExpression "?"?
 typeExpression ::= typePrimary ("|" typePrimary)*

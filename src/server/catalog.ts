@@ -66,31 +66,6 @@ export const KEYWORDS: KinSymbolDoc[] = [
     snippet: 'ntahinduka ${1:IZINA}: ${2:umubare} = ${3:0}',
   },
   {
-    name: 'ubwoko',
-    kind: 'keyword',
-    detail: 'Type alias keyword and typeof function',
-    documentation:
-      'As a **statement**, declares a named type kept through parse and checked at runtime:\n\n' +
-      '```kin\n' +
-      'ubwoko Address = { city: ijambo }\n' +
-      'ubwoko Person = { name: ijambo, address: Address }\n' +
-      'ubwoko Id = ijambo | umubare\n' +
-      'ubwoko NameOnly = Fata<Person, "name">\n' +
-      '```\n\n' +
-      'As a **function**, `ubwoko(x)` returns the runtime type name (`"umubare"`, `"ijambo"`, …).',
-    documentation_rw:
-      'Nk’**itangazo**, `ubwoko` rirema ubwoko bufite izina. Bubikwa mu AST kandi bugenzurwa igihe porogaramu ikora:\n\n' +
-      '```kin\n' +
-      'ubwoko Address = { city: ijambo }\n' +
-      'ubwoko Person = { name: ijambo, address: Address }\n' +
-      'ubwoko Id = ijambo | umubare\n' +
-      'ubwoko NameOnly = Fata<Person, "name">\n' +
-      '```\n\n' +
-      'Nk’**umumaro**, `ubwoko(x)` isubiza izina ry’ubwoko (`"umubare"`, `"ijambo"`, …).',
-    snippet:
-      'ubwoko ${1:Person} = {\n\t${2:name}: ${3:ijambo}\n}',
-  },
-  {
     name: 'porogaramu_ntoya',
     kind: 'keyword',
     detail: 'Define a function',
@@ -259,6 +234,111 @@ export const KEYWORDS: KinSymbolDoc[] = [
       'Niba ari ko gusa, umubiri wacyo ukora.',
     snippet: 'ibindi:\n\t$0',
   },
+  {
+    name: 'imiterere',
+    kind: 'keyword',
+    detail: 'Declare a class',
+    documentation:
+      'Declares a named class (bound as a constant). Body may include one `tegura` constructor and ' +
+      'visibility-prefixed methods (`rusange` / `bwite` + `porogaramu_ntoya`). ' +
+      'Optional single inheritance: `imiterere Child ikomoka Parent { ... }`.',
+    documentation_rw:
+      '`imiterere` rirema imiterere ifite izina (ntahinduka). Umubiri ushobora kugira `tegura` imwe n’imirimo ' +
+      'ifite `rusange` cyangwa `bwite` hamwe na `porogaramu_ntoya`. ' +
+      'Umwanduro umwe: `imiterere Child ikomoka Parent { ... }`.',
+    snippet:
+      'imiterere ${1:Izina} {\n\ttegura(${2:a}) {\n\t\trusange _.${3:umwanya} = ${2:a}\n\t}\n\trusange porogaramu_ntoya ${4:jya}() {\n\t\t$0\n\t}\n}',
+  },
+  {
+    name: 'tegura',
+    kind: 'keyword',
+    detail: 'Class constructor',
+    documentation:
+      'Constructor inside `imiterere`. Runs when you write `rema ClassName(args)`. ' +
+      'Create fields only here with `rusange _.name = expr` or `bwite _.name = expr`.',
+    documentation_rw:
+      '`tegura` ni constructor muri `imiterere`. Ikora iyo wanditse `rema ClassName(args)`. ' +
+      'Tangiza imyanya hano gusa: `rusange _.izina = expr` cyangwa `bwite _.izina = expr`.',
+    snippet:
+      'tegura(${1:a}) {\n\trusange _.${2:umwanya} = ${1:a}\n\t$0\n}',
+  },
+  {
+    name: 'rema',
+    kind: 'keyword',
+    detail: 'Create a class instance',
+    documentation:
+      'Instantiates a class: `rema ClassName(args)`. Argument count must match `tegura` ' +
+      '(or zero if there is no constructor). Result can take member access: `rema C("x").method()`.',
+    documentation_rw:
+      '`rema` irema instance: `rema ClassName(args)`. Umubare w’impamvu ugomba guhura na `tegura` ' +
+      '(cyangwa zero niba nta constructor). Igisubizo gishobora gukurikiranwa n’access: `rema C("x").method()`.',
+    snippet: 'rema ${1:Izina}(${2:args})',
+  },
+  {
+    name: 'ikomoka',
+    kind: 'keyword',
+    detail: 'Class inheritance',
+    documentation:
+      'Single inheritance between classes: `imiterere Child ikomoka Parent { ... }`. ' +
+      'Method lookup walks parents upward. A child `tegura` fully replaces the parent constructor.',
+    documentation_rw:
+      'Umwanduro umwe hagati y’imiterere: `imiterere Child ikomoka Parent { ... }`. ' +
+      'Gushaka umurimo gutangira ku mwana ukagera ku babyeyi. `tegura` y’umwana isimbura ya parent yose.',
+  },
+  {
+    name: 'rusange',
+    kind: 'keyword',
+    detail: 'Public visibility',
+    documentation:
+      'Public field or method on a class. Required on field init in `tegura` and on every class method. ' +
+      'Public members are readable, writable, and callable from anywhere.',
+    documentation_rw:
+      'Umwanya cyangwa umurimo rusange ku miterere. Ngombwa ku gutangiza umwanya muri `tegura` no ku buri method. ' +
+      'Ibice bya rusange bishobora gusomwa, guhindurwa, no guhamagarwa aho ari ho hose.',
+  },
+  {
+    name: 'bwite',
+    kind: 'keyword',
+    detail: 'Private visibility',
+    documentation:
+      'Private field or method. Only methods and `tegura` of the **declaring** class may access it. ' +
+      'Outside code uses public wrappers.',
+    documentation_rw:
+      'Umwanya cyangwa umurimo wa bwite. Gusa methods na `tegura` by’imiterere **yabyatangaje** bishobora kubigeraho. ' +
+      'Kode yo hanze ikoresha imirimo ya rusange.',
+  },
+  {
+    name: 'ubwoko',
+    kind: 'keyword',
+    detail: 'Type alias keyword and typeof prefix operator',
+    documentation:
+      '**1. Type alias (statement):** `ubwoko Name = TypeExpr` — kept on the AST and checked at runtime.\n\n' +
+      '```kin\n' +
+      'ubwoko Address = { city: ijambo }\n' +
+      'ubwoko Id = ijambo | umubare\n' +
+      'ubwoko NameOnly = Fata<Person, "name">\n' +
+      '```\n\n' +
+      '**2. Prefix typeof operator** (tighter than every binary op) — yields a **type value** (not a string):\n\n' +
+      '- Primitives: shared tags so `ubwoko 5 == ubwoko 10` is true.\n' +
+      '- Class instances: the class value itself (`ubwoko keza == Umuntu`).\n' +
+      '- Parenthesized form `ubwoko(x)` still works.\n' +
+      '- User functions and builtins share one function type value.\n' +
+      '- When printed, type values show names like `umubare`, `ijambo`, `ubwoko_imiterere`.',
+    documentation_rw:
+      '**1. Itangazo ry’ubwoko:** `ubwoko Name = TypeExpr` — bubikwa mu AST kandi bugenzurwa igihe porogaramu ikora.\n\n' +
+      '```kin\n' +
+      'ubwoko Address = { city: ijambo }\n' +
+      'ubwoko Id = ijambo | umubare\n' +
+      'ubwoko NameOnly = Fata<Person, "name">\n' +
+      '```\n\n' +
+      '**2. Ikimenyetso cya mbere cya typeof** — gitanga **agaciro k’ubwoko** (si ijambo):\n\n' +
+      '- Primitive: `ubwoko 5 == ubwoko 10` ni nibyo.\n' +
+      '- Instance: `ubwoko keza == Umuntu`.\n' +
+      '- `ubwoko(x)` mu makugiro biracyakora.\n' +
+      '- Imirimo ya ukoresha n’iyubatsemo bafite ubwoko bumwe.',
+    snippet: 'ubwoko ${1:x}',
+    example: 'ubwoko 5 == ubwoko 10',
+  },
 ];
 
 const TANGAZA: KinSymbolDoc = {
@@ -344,31 +424,6 @@ const SISITEMU: KinSymbolDoc = {
   ],
   returns: 'string',
   example: 'reka out = sisitemu("echo muraho")',
-};
-
-const UBWOKO: KinSymbolDoc = {
-  name: 'ubwoko',
-  kind: 'function',
-  detail: 'Runtime type of a value',
-  documentation:
-    'Returns the Kin runtime type name of its argument as an **ijambo**. For `ubwoko(5)` that string is `"umubare"`. ' +
-    'Other values: `"ijambo"`, `"ukuri"`, `"ubwoko_imiterere"`, `"urutonde"` (arrays), `"porogaramu_ntoya"`, `"_porogaramu_ntoya"`, or `"ubusa"`.\n\n' +
-    'The same word is the **type-alias keyword**: `ubwoko Person = { name: ijambo }`.',
-  documentation_rw:
-    '`ubwoko` isubiza **ijambo** ry’ubwoko bwa runtime: kuri `ubwoko(5)` ni `"umubare"`. ' +
-    'Izindi: `"ijambo"`, `"ukuri"`, `"ubwoko_imiterere"`, `"urutonde"`, `"porogaramu_ntoya"`, `"_porogaramu_ntoya"`, cyangwa `"ubusa"`.\n\n' +
-    'Iryo jambo rirakoreshwa kandi nk’**ijambo ry’ubwoko**: `ubwoko Person = { name: ijambo }`.',
-  args: [
-    {
-      name: 'value',
-      type: 'any',
-      required: true,
-      documentation: 'Any Kin value whose runtime type you want.',
-      documentation_rw: 'Agaciro ka Kin ushaka kumenya ubwoko bwako.',
-    },
-  ],
-  returns: 'ijambo',
-  example: 'ubwoko(12)    # "umubare"',
 };
 
 export const CONSTANTS: KinSymbolDoc[] = [
@@ -1113,7 +1168,7 @@ export const NAMESPACES: KinSymbolDoc[] = [
   KIN_INYANDIKO,
 ];
 
-export const FUNCTIONS: KinSymbolDoc[] = [TANGAZA, INJIZA, SISITEMU, UBWOKO];
+export const FUNCTIONS: KinSymbolDoc[] = [TANGAZA, INJIZA, SISITEMU];
 
 const BY_NAME = new Map<string, KinSymbolDoc>();
 
