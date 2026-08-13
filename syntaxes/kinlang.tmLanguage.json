@@ -34,7 +34,18 @@
       }
     },
     {
-      "match": "\\b(reka|ntahinduka)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(:)\\s*(number|string|boolean|object|urutonde|fn|native-fn)(\\?)?",
+      "match": "\\b(ubwoko)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*=",
+      "captures": {
+        "1": {
+          "name": "keyword.control.kin"
+        },
+        "2": {
+          "name": "entity.name.type.kin"
+        }
+      }
+    },
+    {
+      "match": "\\b(reka|ntahinduka)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(:)\\s*([A-Za-z_][A-Za-z0-9_]*)(\\?)?",
       "captures": {
         "1": {
           "name": "keyword.control.kin"
@@ -54,7 +65,15 @@
       }
     },
     {
-      "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|hagarara|komeza|niba|nanone_niba|niba_byanze|gereranya|usanze|ibindi)\\b",
+      "match": "\\b(Fata)\\b",
+      "name": "support.type.kin"
+    },
+    {
+      "match": "\\b(umubare|ijambo|ukuri|ubwoko_imiterere|urutonde|porogaramu_ntoya|_porogaramu_ntoya)\\b",
+      "name": "support.type.primitive.kin"
+    },
+    {
+      "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|hagarara|komeza|niba|nanone_niba|niba_byanze|gereranya|usanze|ibindi|ubwoko)\\b",
       "name": "keyword.control.kin"
     },
     {
@@ -96,6 +115,10 @@
     {
       "match": "&&|\\|\\|",
       "name": "keyword.operator.logical.kin"
+    },
+    {
+      "match": "(?<!\\|)\\|(?!\\|)",
+      "name": "keyword.operator.type.kin"
     },
     {
       "match": "(?<![A-Za-z0-9_])!(?!=)",

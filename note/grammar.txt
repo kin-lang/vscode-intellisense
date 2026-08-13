@@ -1,4 +1,4 @@
-; Type safety: # kin-types: on|off|strict | env KIN_TYPES | CLI --types
+; Type safety: annotations are tokenized, parsed, and checked at runtime.
 ; Kin Programming Language grammar (BNF)
 ; Mirror of kin/grammar.bnf — derived from lexer + parser, not from older notes.
 ;
@@ -7,6 +7,7 @@
 program ::= statement*
 
 statement ::= variableDeclaration
+            | typeAliasDeclaration
             | functionDeclaration
             | loopStatement
             | breakStatement
@@ -19,16 +20,26 @@ statement ::= variableDeclaration
 ; ntahinduka must have an initializer.
 ; Optional type annotation enables runtime checks for that binding only.
 ; Required (`: type`) rejects ubusa; optional (`: type?`) allows it.
-; Type names: number string boolean object urutonde fn
+; Built-in names: umubare ijambo ukuri ubwoko_imiterere urutonde porogaramu_ntoya _porogaramu_ntoya ubusa
+; Also: user type aliases (ubwoko), object types, unions (A | B), Fata<T, "k">
 variableDeclaration ::= "reka" identifier typeAnnotation? (";" | "=" expression)
                       | "ntahinduka" identifier typeAnnotation? "=" expression
 
-typeAnnotation ::= ":" typeName "?"?
-typeName       ::= "number" | "string" | "boolean" | "object" | "urutonde" | "fn" | "native-fn"
+typeAliasDeclaration ::= "ubwoko" identifier "=" typeExpression
 
-functionDeclaration ::= "porogaramu_ntoya" identifier "(" parameterList? ")" block
+typeAnnotation ::= ":" typeExpression "?"?
+typeExpression ::= typePrimary ("|" typePrimary)*
+typePrimary    ::= typeName | objectType | fataType | "(" typeExpression ")"
+typeName       ::= "umubare" | "ijambo" | "ukuri" | "ubwoko_imiterere" | "urutonde"
+                 | "porogaramu_ntoya" | "_porogaramu_ntoya" | "ubusa" | identifier
+objectType     ::= "{" (identifier ":" typeExpression ("," ...)? )? "}"
+fataType       ::= "Fata" "<" typeExpression "," stringLiteral ("|" stringLiteral)* ">"
 
-parameterList ::= identifier ("," identifier)*
+functionDeclaration ::= "porogaramu_ntoya" identifier "(" parameterList? ")"
+                        typeAnnotation? block
+
+parameterList ::= parameter ("," parameter)*
+parameter     ::= identifier typeAnnotation?
 
 block ::= "{" statement* "}"
 

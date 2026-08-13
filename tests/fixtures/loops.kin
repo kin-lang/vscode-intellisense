@@ -1,4 +1,4 @@
-reka i = 1
+reka i: umubare = 1
 subiramo_niba(i<=100) {
     tangaza_amakuru(i)
     # stop the loop when i reaches 5
@@ -6,4 +6,14 @@ subiramo_niba(i<=100) {
         hagarara
     }
     i = i + 1
+}
+
+# komeza skips the rest of the current iteration (even numbers here)
+reka n: umubare = 0
+subiramo_niba(n < 10) {
+    n = n + 1
+    niba(n % 2 == 0) {
+        komeza
+    }
+    tangaza_amakuru(n)
 }

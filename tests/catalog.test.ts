@@ -30,6 +30,7 @@ describe('Kin language catalog', () => {
         'reka',
         'subiramo_niba',
         'tanga',
+        'ubwoko',
         'usanze',
       ].sort(),
     );
@@ -156,8 +157,8 @@ describe('Kin language catalog', () => {
 
   test('documents runtime facts students hit in the first hour', () => {
     const ubwoko = formatMarkdown(lookupSymbol('ubwoko')!);
-    assert.match(ubwoko, /"number"/);
-    assert.match(ubwoko, /not `umubare`|si `umubare`/);
+    assert.match(ubwoko, /"umubare"/);
+    assert.match(ubwoko, /"ijambo"/);
 
     const ifite = formatMarkdown(lookupMember('KIN_URUTONDE', 'ifite')!);
     assert.match(ifite, /any element|icyo ari cyo cyose/i);

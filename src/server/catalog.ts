@@ -39,16 +39,16 @@ export const KEYWORDS: KinSymbolDoc[] = [
       'Creates a name you can change later. This is not `const` and not `let` — the keyword is `reka`.\n\n' +
       '- `reka izina = agaciro` assigns a value (no semicolon).\n' +
       '- `reka izina;` declares it empty (`ubusa`). The semicolon is **required** when you omit the initializer; without it the parser rejects the line.\n' +
-      '- Optional type: `reka age: number = 25` (required) or `reka score: number? = ubusa` (allows null).\n' +
-      '- Type names: `number`, `string`, `boolean`, `object`, `urutonde`, `fn` (`native-fn` synonym).\n' +
-      '- Type safety: `# kin-types: on|off|strict`, env `KIN_TYPES`, CLI `--types`. Checks at declare/reassign when on/strict.',
+      '- Optional type: `reka age: umubare = 25` (required) or `reka score: umubare? = ubusa` (allows null).\n' +
+      '- Type names: `umubare`, `ijambo`, `ukuri`, `ubwoko_imiterere`, `urutonde`, `porogaramu_ntoya`, plus user `ubwoko` aliases.\n' +
+      '- Types are checked at runtime on declare and reassign (not erased).',
     documentation_rw:
       'Ijambo `reka` rirema ihinduragaciro ushobora guhindura nyuma muri porogaramu. Ntabwo ari `const` cyangwa `let` — muri Kin ukoresha `reka`.\n\n' +
       '- `reka izina = agaciro` rishyira agaciro (ntakadomo `;`).\n' +
       '- `reka izina;` rirema izina ririmo `ubusa`. Hano `;` ni **ngombwa**. Niba utarisize, parser iranga ikosa.\n' +
-      '- Ubwoko: `reka age: number = 25` (ngombwa) cyangwa `reka score: number? = ubusa` (ubusa yemerewe).\n' +
-      '- Amazina: `number`, `string`, `boolean`, `object`, `urutonde`, `fn`.',
-    snippet: 'reka ${1:izina} = ${2:0}',
+      '- Ubwoko: `reka age: umubare = 25` (ngombwa) cyangwa `reka score: umubare? = ubusa` (ubusa yemerewe).\n' +
+      '- Amazina: `umubare`, `ijambo`, `ukuri`, `ubwoko_imiterere`, `urutonde`, `porogaramu_ntoya`, n’amazina ya `ubwoko`.',
+    snippet: 'reka ${1:izina}: ${2:umubare} = ${3:0}',
   },
   {
     name: 'ntahinduka',
@@ -57,28 +57,65 @@ export const KEYWORDS: KinSymbolDoc[] = [
     documentation:
       'Creates a name that cannot be reassigned. An initializer is required — ' +
       '`ntahinduka x;` is a parse error. Always write `ntahinduka IZINA = agaciro`.\n\n' +
-      'You may add a type annotation: `ntahinduka name: string = "Keza"`.',
+      'You may add a type annotation: `ntahinduka name: ijambo = "Keza"`.',
     documentation_rw:
       'Ijambo `ntahinduka` rirema ihinduragaciro idahinduka: ntushobora kuyihindura nyuma. ' +
       'Ugomba kuyiha agaciro ako kanya — `ntahinduka x;` ni ikosa rya parser. ' +
       'Andika buri gihe `ntahinduka IZINA = agaciro`.\n\n' +
-      'Ushobora kongeraho ubwoko: `ntahinduka name: string = "Keza"`.',
-    snippet: 'ntahinduka ${1:IZINA} = ${2:0}',
+      'Ushobora kongeraho ubwoko: `ntahinduka name: ijambo = "Keza"`.',
+    snippet: 'ntahinduka ${1:IZINA}: ${2:umubare} = ${3:0}',
+  },
+  {
+    name: 'ubwoko',
+    kind: 'keyword',
+    detail: 'Type alias keyword and typeof function',
+    documentation:
+      'As a **statement**, declares a named type kept through parse and checked at runtime:\n\n' +
+      '```kin\n' +
+      'ubwoko Address = { city: ijambo }\n' +
+      'ubwoko Person = { name: ijambo, address: Address }\n' +
+      'ubwoko Id = ijambo | umubare\n' +
+      'ubwoko NameOnly = Fata<Person, "name">\n' +
+      '```\n\n' +
+      'As a **function**, `ubwoko(x)` returns the runtime type name (`"umubare"`, `"ijambo"`, …).',
+    documentation_rw:
+      'Nk’**itangazo**, `ubwoko` rirema ubwoko bufite izina. Bubikwa mu AST kandi bugenzurwa igihe porogaramu ikora:\n\n' +
+      '```kin\n' +
+      'ubwoko Address = { city: ijambo }\n' +
+      'ubwoko Person = { name: ijambo, address: Address }\n' +
+      'ubwoko Id = ijambo | umubare\n' +
+      'ubwoko NameOnly = Fata<Person, "name">\n' +
+      '```\n\n' +
+      'Nk’**umumaro**, `ubwoko(x)` isubiza izina ry’ubwoko (`"umubare"`, `"ijambo"`, …).',
+    snippet:
+      'ubwoko ${1:Person} = {\n\t${2:name}: ${3:ijambo}\n}',
   },
   {
     name: 'porogaramu_ntoya',
     kind: 'keyword',
     detail: 'Define a function',
     documentation:
-      'Declares a named function. Parameters are identifiers only (letters, digits, underscore; must start with a letter or `_`). ' +
-      '`$` is not legal in a name. Use `tanga` (not `return`) to give a value back. ' +
+      'Declares a named function. Parameters may include type annotations; ' +
+      'an optional return type follows `)`.\n\n' +
+      '```kin\n' +
+      'porogaramu_ntoya add(a: umubare, b: umubare): umubare {\n' +
+      '  tanga a + b\n' +
+      '}\n' +
+      '```\n\n' +
+      'Use `tanga` (not `return`) to give a value back. ' +
       'A function that never hits `tanga` yields `ubusa`.',
     documentation_rw:
-      'Ijambo `porogaramu_ntoya` rirema umumaro ufite izina. Ibipimo ni amazina gusa (inyuguti, imibare, `_`; ritangira ku nyuguti cyangwa `_`). ' +
-      'Ikimenyetso `$` ntikemewe mu izina. Kugarura agaciro ukoresha `tanga` (si `return`). ' +
+      'Ijambo `porogaramu_ntoya` rirema umumaro ufite izina. Ibipimo bishobora kugira ubwoko; ' +
+      'ubwoko bwo gusubiza bushobora gushyirwa nyuma ya `)`.\n\n' +
+      '```kin\n' +
+      'porogaramu_ntoya add(a: umubare, b: umubare): umubare {\n' +
+      '  tanga a + b\n' +
+      '}\n' +
+      '```\n\n' +
+      'Kugarura agaciro ukoresha `tanga` (si `return`). ' +
       'Umumaro utagera kuri `tanga` usubiza `ubusa`.',
     snippet:
-      'porogaramu_ntoya ${1:izina}(${2:a}) {\n\t${3:tanga a}\n}',
+      'porogaramu_ntoya ${1:izina}(${2:a}: ${3:umubare}): ${4:umubare} {\n\t${5:tanga a}\n}',
   },
   {
     name: 'tanga',
@@ -314,11 +351,13 @@ const UBWOKO: KinSymbolDoc = {
   kind: 'function',
   detail: 'Runtime type of a value',
   documentation:
-    'Returns the Kin runtime type name of its argument as a **string**. For `ubwoko(5)` that string is `"number"`, ' +
-    'not `umubare`. Other values: `"string"`, `"boolean"`, `"object"`, `"urutonde"` (arrays), `"fn"`, `"native-fn"`, or `"null"`.',
+    'Returns the Kin runtime type name of its argument as an **ijambo**. For `ubwoko(5)` that string is `"umubare"`. ' +
+    'Other values: `"ijambo"`, `"ukuri"`, `"ubwoko_imiterere"`, `"urutonde"` (arrays), `"porogaramu_ntoya"`, `"_porogaramu_ntoya"`, or `"ubusa"`.\n\n' +
+    'The same word is the **type-alias keyword**: `ubwoko Person = { name: ijambo }`.',
   documentation_rw:
-    '`ubwoko` isubiza **ijambo** (string) ry’ubwoko bwa runtime: kuri `ubwoko(5)` ni `"number"`, ' +
-    'si `umubare`. Izindi: `"string"`, `"boolean"`, `"object"`, `"urutonde"` (urutonde), `"fn"`, `"native-fn"`, cyangwa `"null"`.',
+    '`ubwoko` isubiza **ijambo** ry’ubwoko bwa runtime: kuri `ubwoko(5)` ni `"umubare"`. ' +
+    'Izindi: `"ijambo"`, `"ukuri"`, `"ubwoko_imiterere"`, `"urutonde"`, `"porogaramu_ntoya"`, `"_porogaramu_ntoya"`, cyangwa `"ubusa"`.\n\n' +
+    'Iryo jambo rirakoreshwa kandi nk’**ijambo ry’ubwoko**: `ubwoko Person = { name: ijambo }`.',
   args: [
     {
       name: 'value',
@@ -328,8 +367,8 @@ const UBWOKO: KinSymbolDoc = {
       documentation_rw: 'Agaciro ka Kin ushaka kumenya ubwoko bwako.',
     },
   ],
-  returns: 'string',
-  example: 'ubwoko(12)    # "number"',
+  returns: 'ijambo',
+  example: 'ubwoko(12)    # "umubare"',
 };
 
 export const CONSTANTS: KinSymbolDoc[] = [
