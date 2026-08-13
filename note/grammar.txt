@@ -16,8 +16,14 @@ statement ::= variableDeclaration
 
 ; Semicolon only when the initializer is omitted.
 ; ntahinduka must have an initializer.
-variableDeclaration ::= "reka" identifier (";" | "=" expression)
-                      | "ntahinduka" identifier "=" expression
+; Optional type annotation enables runtime checks for that binding only.
+; Required (`: type`) rejects ubusa; optional (`: type?`) allows it.
+; Type names: number string boolean object urutonde fn
+variableDeclaration ::= "reka" identifier typeAnnotation? (";" | "=" expression)
+                      | "ntahinduka" identifier typeAnnotation? "=" expression
+
+typeAnnotation ::= ":" typeName "?"?
+typeName       ::= "number" | "string" | "boolean" | "object" | "urutonde" | "fn"
 
 functionDeclaration ::= "porogaramu_ntoya" identifier "(" parameterList? ")" block
 

@@ -30,6 +30,16 @@
       "name": "keyword.control.kin"
     },
     {
+      "match": "\\b(reka|ntahinduka)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(:)\\s*(number|string|boolean|object|urutonde|fn)(\\?)?",
+      "captures": {
+        "1": { "name": "keyword.control.kin" },
+        "2": { "name": "variable.other.kin" },
+        "3": { "name": "punctuation.separator.type.kin" },
+        "4": { "name": "support.type.kin" },
+        "5": { "name": "punctuation.definition.optional-type.kin" }
+      }
+    },
+    {
       "match": "(?<!\\.)\\b(nibyo|sibyo)\\b",
       "name": "constant.language.boolean.kin"
     },
@@ -104,6 +114,10 @@
     {
       "match": ":",
       "name": "punctuation.separator.key-value.kin"
+    },
+    {
+      "match": "\\?",
+      "name": "punctuation.definition.optional-type.kin"
     }
   ]
 }

@@ -38,11 +38,15 @@ export const KEYWORDS: KinSymbolDoc[] = [
     documentation:
       'Creates a name you can change later. This is not `const` and not `let` — the keyword is `reka`.\n\n' +
       '- `reka izina = agaciro` assigns a value (no semicolon).\n' +
-      '- `reka izina;` declares it empty (`ubusa`). The semicolon is **required** when you omit the initializer; without it the parser rejects the line.',
+      '- `reka izina;` declares it empty (`ubusa`). The semicolon is **required** when you omit the initializer; without it the parser rejects the line.\n' +
+      '- Optional type: `reka age: number = 25` (required) or `reka score: number? = ubusa` (allows null).\n' +
+      '- Type names: `number`, `string`, `boolean`, `object`, `urutonde`, `fn`. Checks run at declare and reassign.',
     documentation_rw:
       'Ijambo `reka` rirema ihinduragaciro ushobora guhindura nyuma muri porogaramu. Ntabwo ari `const` cyangwa `let` — muri Kin ukoresha `reka`.\n\n' +
       '- `reka izina = agaciro` rishyira agaciro (ntakadomo `;`).\n' +
-      '- `reka izina;` rirema izina ririmo `ubusa`. Hano `;` ni **ngombwa**. Niba utarisize, parser iranga ikosa.',
+      '- `reka izina;` rirema izina ririmo `ubusa`. Hano `;` ni **ngombwa**. Niba utarisize, parser iranga ikosa.\n' +
+      '- Ubwoko: `reka age: number = 25` (ngombwa) cyangwa `reka score: number? = ubusa` (ubusa yemerewe).\n' +
+      '- Amazina: `number`, `string`, `boolean`, `object`, `urutonde`, `fn`.',
     snippet: 'reka ${1:izina} = ${2:0}',
   },
   {
@@ -51,11 +55,13 @@ export const KEYWORDS: KinSymbolDoc[] = [
     detail: 'Declare a constant',
     documentation:
       'Creates a name that cannot be reassigned. An initializer is required — ' +
-      '`ntahinduka x;` is a parse error. Always write `ntahinduka IZINA = agaciro`.',
+      '`ntahinduka x;` is a parse error. Always write `ntahinduka IZINA = agaciro`.\n\n' +
+      'You may add a type annotation: `ntahinduka name: string = "Keza"`.',
     documentation_rw:
       'Ijambo `ntahinduka` rirema ihinduragaciro idahinduka: ntushobora kuyihindura nyuma. ' +
       'Ugomba kuyiha agaciro ako kanya — `ntahinduka x;` ni ikosa rya parser. ' +
-      'Andika buri gihe `ntahinduka IZINA = agaciro`.',
+      'Andika buri gihe `ntahinduka IZINA = agaciro`.\n\n' +
+      'Ushobora kongeraho ubwoko: `ntahinduka name: string = "Keza"`.',
     snippet: 'ntahinduka ${1:IZINA} = ${2:0}',
   },
   {
