@@ -38,7 +38,7 @@ describe('Kin language catalog', () => {
   test('includes every top-level built-in from globals.ts', () => {
     assert.deepEqual(
       FUNCTIONS.map((f) => f.name).sort(),
-      ['injiza_amakuru', 'sisitemu', 'tangaza_amakuru', 'ubwoko'].sort(),
+      ['injiza', 'injiza_amakuru', 'sisitemu', 'tangaza_amakuru', 'ubwoko'].sort(),
     );
     assert.deepEqual(
       CONSTANTS.map((c) => c.name).sort(),

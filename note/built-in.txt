@@ -1,5 +1,6 @@
 tangaza_amakuru(...values) -> ubusa
 injiza_amakuru(...prompt) -> number | string | ubusa
+injiza(path) -> any
 sisitemu(command) -> string
 ubwoko(value) -> string
 filename -> string

@@ -38,11 +38,15 @@ export const KEYWORDS: KinSymbolDoc[] = [
     documentation:
       'Creates a name you can change later. This is not `const` and not `let` — the keyword is `reka`.\n\n' +
       '- `reka izina = agaciro` assigns a value (no semicolon).\n' +
-      '- `reka izina;` declares it empty (`ubusa`). The semicolon is **required** when you omit the initializer; without it the parser rejects the line.',
+      '- `reka izina;` declares it empty (`ubusa`). The semicolon is **required** when you omit the initializer; without it the parser rejects the line.\n' +
+      '- Optional type: `reka age: number = 25` (required) or `reka score: number? = ubusa` (allows null).\n' +
+      '- Type names: `number`, `string`, `boolean`, `object`, `urutonde`, `fn`. Checks run at declare and reassign.',
     documentation_rw:
       'Ijambo `reka` rirema ihinduragaciro ushobora guhindura nyuma muri porogaramu. Ntabwo ari `const` cyangwa `let` — muri Kin ukoresha `reka`.\n\n' +
       '- `reka izina = agaciro` rishyira agaciro (ntakadomo `;`).\n' +
-      '- `reka izina;` rirema izina ririmo `ubusa`. Hano `;` ni **ngombwa**. Niba utarisize, parser iranga ikosa.',
+      '- `reka izina;` rirema izina ririmo `ubusa`. Hano `;` ni **ngombwa**. Niba utarisize, parser iranga ikosa.\n' +
+      '- Ubwoko: `reka age: number = 25` (ngombwa) cyangwa `reka score: number? = ubusa` (ubusa yemerewe).\n' +
+      '- Amazina: `number`, `string`, `boolean`, `object`, `urutonde`, `fn`.',
     snippet: 'reka ${1:izina} = ${2:0}',
   },
   {
@@ -51,11 +55,13 @@ export const KEYWORDS: KinSymbolDoc[] = [
     detail: 'Declare a constant',
     documentation:
       'Creates a name that cannot be reassigned. An initializer is required — ' +
-      '`ntahinduka x;` is a parse error. Always write `ntahinduka IZINA = agaciro`.',
+      '`ntahinduka x;` is a parse error. Always write `ntahinduka IZINA = agaciro`.\n\n' +
+      'You may add a type annotation: `ntahinduka name: string = "Keza"`.',
     documentation_rw:
       'Ijambo `ntahinduka` rirema ihinduragaciro idahinduka: ntushobora kuyihindura nyuma. ' +
       'Ugomba kuyiha agaciro ako kanya — `ntahinduka x;` ni ikosa rya parser. ' +
-      'Andika buri gihe `ntahinduka IZINA = agaciro`.',
+      'Andika buri gihe `ntahinduka IZINA = agaciro`.\n\n' +
+      'Ushobora kongeraho ubwoko: `ntahinduka name: string = "Keza"`.',
     snippet: 'ntahinduka ${1:IZINA} = ${2:0}',
   },
   {
@@ -242,7 +248,7 @@ const TANGAZA: KinSymbolDoc = {
   example: 'tangaza_amakuru("Hello ", izina, "!")',
 };
 
-const INJIZA: KinSymbolDoc = {
+const INJIZA_AMAKURU: KinSymbolDoc = {
   name: 'injiza_amakuru',
   kind: 'function',
   detail: 'Read a line from the user',
@@ -273,6 +279,37 @@ const INJIZA: KinSymbolDoc = {
   ],
   returns: 'number | string | ubusa',
   example: 'reka izina = injiza_amakuru("Andika izina: ")',
+};
+
+const INJIZA: KinSymbolDoc = {
+  name: 'injiza',
+  kind: 'function',
+  detail: 'Import another Kin file',
+  documentation:
+    'Loads and runs another `.kin` file in the **current** environment so its variables and functions become available.\n\n' +
+    '- Path is relative to the file that contains the `injiza` call (absolute paths work too).\n' +
+    '- Each absolute path is loaded once per run; a second call is a no-op.\n' +
+    '- Circular imports raise a runtime error (`K033`).\n' +
+    '- Missing files raise `K032`.\n\n' +
+    'Requires exactly one string argument.',
+  documentation_rw:
+    '`injiza` isoma ikora indi dosiye ya `.kin` mu **same** environment, kugira ngo ibihinduragaciro n’imirimo yayo iboneke.\n\n' +
+    '- Inzira irebana n’idosiye irimo `injiza` (absolute paths na zo zikora).\n' +
+    '- Buri nzira absolute isomwa rimwe gusa; guhamagara kabiri nta cyo bikora.\n' +
+    '- Circular imports zitanga ikosa (`K033`).\n' +
+    '- Dosiye itabonetse itanga `K032`.\n\n' +
+    'Isaba argument imwe y’ubwoko string.',
+  args: [
+    {
+      name: 'path',
+      type: 'string',
+      required: true,
+      documentation: 'Path to a Kin source file, e.g. `"utils.kin"` or `"lib/helpers.kin"`.',
+      documentation_rw: 'Inzira y’idosiye ya Kin, urugero `"utils.kin"` cyangwa `"lib/helpers.kin"`.',
+    },
+  ],
+  returns: 'any',
+  example: 'injiza("utils.kin")',
 };
 
 const SISITEMU: KinSymbolDoc = {
@@ -1067,7 +1104,13 @@ export const NAMESPACES: KinSymbolDoc[] = [
   KIN_INYANDIKO,
 ];
 
-export const FUNCTIONS: KinSymbolDoc[] = [TANGAZA, INJIZA, SISITEMU, UBWOKO];
+export const FUNCTIONS: KinSymbolDoc[] = [
+  TANGAZA,
+  INJIZA_AMAKURU,
+  INJIZA,
+  SISITEMU,
+  UBWOKO,
+];
 
 const BY_NAME = new Map<string, KinSymbolDoc>();
 
