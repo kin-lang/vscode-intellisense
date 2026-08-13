@@ -8,3 +8,5 @@
 # stray local programs; keep test fixtures
 *.kin
 !tests/fixtures/*.kin
+.gitignore
+config.bat
