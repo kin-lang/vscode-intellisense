@@ -215,6 +215,98 @@ export const KEYWORDS: KinSymbolDoc[] = [
       'Niba ari ko gusa, umubiri wacyo ukora.',
     snippet: 'ibindi:\n\t$0',
   },
+  {
+    name: 'imiterere',
+    kind: 'keyword',
+    detail: 'Declare a class',
+    documentation:
+      'Declares a named class (bound as a constant). Body may include one `tegura` constructor and ' +
+      'visibility-prefixed methods (`rusange` / `bwite` + `porogaramu_ntoya`). ' +
+      'Optional single inheritance: `imiterere Child ikomoka Parent { ... }`.',
+    documentation_rw:
+      '`imiterere` rirema imiterere ifite izina (ntahinduka). Umubiri ushobora kugira `tegura` imwe n’imirimo ' +
+      'ifite `rusange` cyangwa `bwite` hamwe na `porogaramu_ntoya`. ' +
+      'Umwanduro umwe: `imiterere Child ikomoka Parent { ... }`.',
+    snippet:
+      'imiterere ${1:Izina} {\n\ttegura(${2:a}) {\n\t\trusange _.${3:umwanya} = ${2:a}\n\t}\n\trusange porogaramu_ntoya ${4:jya}() {\n\t\t$0\n\t}\n}',
+  },
+  {
+    name: 'tegura',
+    kind: 'keyword',
+    detail: 'Class constructor',
+    documentation:
+      'Constructor inside `imiterere`. Runs when you write `rema ClassName(args)`. ' +
+      'Create fields only here with `rusange _.name = expr` or `bwite _.name = expr`.',
+    documentation_rw:
+      '`tegura` ni constructor muri `imiterere`. Ikora iyo wanditse `rema ClassName(args)`. ' +
+      'Tangiza imyanya hano gusa: `rusange _.izina = expr` cyangwa `bwite _.izina = expr`.',
+    snippet:
+      'tegura(${1:a}) {\n\trusange _.${2:umwanya} = ${1:a}\n\t$0\n}',
+  },
+  {
+    name: 'rema',
+    kind: 'keyword',
+    detail: 'Create a class instance',
+    documentation:
+      'Instantiates a class: `rema ClassName(args)`. Argument count must match `tegura` ' +
+      '(or zero if there is no constructor). Result can take member access: `rema C("x").method()`.',
+    documentation_rw:
+      '`rema` irema instance: `rema ClassName(args)`. Umubare w’impamvu ugomba guhura na `tegura` ' +
+      '(cyangwa zero niba nta constructor). Igisubizo gishobora gukurikiranwa n’access: `rema C("x").method()`.',
+    snippet: 'rema ${1:Izina}(${2:args})',
+  },
+  {
+    name: 'ikomoka',
+    kind: 'keyword',
+    detail: 'Class inheritance',
+    documentation:
+      'Single inheritance between classes: `imiterere Child ikomoka Parent { ... }`. ' +
+      'Method lookup walks parents upward. A child `tegura` fully replaces the parent constructor.',
+    documentation_rw:
+      'Umwanduro umwe hagati y’imiterere: `imiterere Child ikomoka Parent { ... }`. ' +
+      'Gushaka umurimo gutangira ku mwana ukagera ku babyeyi. `tegura` y’umwana isimbura ya parent yose.',
+  },
+  {
+    name: 'rusange',
+    kind: 'keyword',
+    detail: 'Public visibility',
+    documentation:
+      'Public field or method on a class. Required on field init in `tegura` and on every class method. ' +
+      'Public members are readable, writable, and callable from anywhere.',
+    documentation_rw:
+      'Umwanya cyangwa umurimo rusange ku miterere. Ngombwa ku gutangiza umwanya muri `tegura` no ku buri method. ' +
+      'Ibice bya rusange bishobora gusomwa, guhindurwa, no guhamagarwa aho ari ho hose.',
+  },
+  {
+    name: 'bwite',
+    kind: 'keyword',
+    detail: 'Private visibility',
+    documentation:
+      'Private field or method. Only methods and `tegura` of the **declaring** class may access it. ' +
+      'Outside code uses public wrappers.',
+    documentation_rw:
+      'Umwanya cyangwa umurimo wa bwite. Gusa methods na `tegura` by’imiterere **yabyatangaje** bishobora kubigeraho. ' +
+      'Kode yo hanze ikoresha imirimo ya rusange.',
+  },
+  {
+    name: 'ubwoko',
+    kind: 'keyword',
+    detail: 'Prefix type operator',
+    documentation:
+      'Prefix operator (tighter than every binary operator) that yields a **type value**, not a string.\n\n' +
+      '- For primitives: shared type tags so `ubwoko 5 == ubwoko 10` is true.\n' +
+      '- For class instances: the class value itself (`ubwoko keza == Umuntu`).\n' +
+      '- Parenthesized form `ubwoko(x)` still works.\n' +
+      '- User functions and builtins share one function type value.',
+    documentation_rw:
+      'Ikimenyetso cya mbere (gishira imbere y’ibimenyetso byose bya binary) gitanga **agaciro k’ubwoko**, si ijambo.\n\n' +
+      '- Ku bintu bya primitive: tags zisa `ubwoko 5 == ubwoko 10` ni nibyo.\n' +
+      '- Ku instance: agaciro k’imiterere (`ubwoko keza == Umuntu`).\n' +
+      '- `ubwoko(x)` mu makugiro biracyakora.\n' +
+      '- Porogaramu_ntoya n’imirimo ya sisiteme bafite ubwoko bumwe bwa `fn`.',
+    snippet: 'ubwoko ${1:x}',
+    example: 'ubwoko 5 == ubwoko 10',
+  },
 ];
 
 const TANGAZA: KinSymbolDoc = {
@@ -300,29 +392,6 @@ const SISITEMU: KinSymbolDoc = {
   ],
   returns: 'string',
   example: 'reka out = sisitemu("echo muraho")',
-};
-
-const UBWOKO: KinSymbolDoc = {
-  name: 'ubwoko',
-  kind: 'function',
-  detail: 'Runtime type of a value',
-  documentation:
-    'Returns the Kin runtime type name of its argument as a **string**. For `ubwoko(5)` that string is `"number"`, ' +
-    'not `umubare`. Other values: `"string"`, `"boolean"`, `"object"`, `"urutonde"` (arrays), `"fn"`, `"native-fn"`, or `"null"`.',
-  documentation_rw:
-    '`ubwoko` isubiza **ijambo** (string) ry’ubwoko bwa runtime: kuri `ubwoko(5)` ni `"number"`, ' +
-    'si `umubare`. Izindi: `"string"`, `"boolean"`, `"object"`, `"urutonde"` (urutonde), `"fn"`, `"native-fn"`, cyangwa `"null"`.',
-  args: [
-    {
-      name: 'value',
-      type: 'any',
-      required: true,
-      documentation: 'Any Kin value whose runtime type you want.',
-      documentation_rw: 'Agaciro ka Kin ushaka kumenya ubwoko bwako.',
-    },
-  ],
-  returns: 'string',
-  example: 'ubwoko(12)    # "number"',
 };
 
 export const CONSTANTS: KinSymbolDoc[] = [
@@ -1067,7 +1136,7 @@ export const NAMESPACES: KinSymbolDoc[] = [
   KIN_INYANDIKO,
 ];
 
-export const FUNCTIONS: KinSymbolDoc[] = [TANGAZA, INJIZA, SISITEMU, UBWOKO];
+export const FUNCTIONS: KinSymbolDoc[] = [TANGAZA, INJIZA, SISITEMU];
 
 const BY_NAME = new Map<string, KinSymbolDoc>();
 
