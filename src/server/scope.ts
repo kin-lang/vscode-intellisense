@@ -456,12 +456,54 @@ export function analyze(text: string, offset?: number): Analysis {
         }
         declare(scope, binding, range);
         // Methods / constructor bodies: walk for nested symbols.
-        const ctor = node.constructor as KinNode | undefined;
-        if (ctor) {
-          for (const stmt of (ctor.body as KinNode[]) ?? []) walk(stmt, scope);
+        // ClassConstructor lives on AST field `constructor` (not Function).
+        const rawCtor = (node as Record<string, unknown>)['constructor'];
+        if (
+          rawCtor &&
+          typeof rawCtor === 'object' &&
+          rawCtor !== null &&
+          'body' in (rawCtor as object)
+        ) {
+          for (const stmt of ((rawCtor as KinNode).body as KinNode[]) ?? []) {
+            walk(stmt, scope);
+          }
         }
         for (const m of (node.methods as KinNode[]) ?? []) {
           for (const stmt of (m.body as KinNode[]) ?? []) walk(stmt, scope);
+        }
+        return;
+      }
+      case 'ImportDeclaration': {
+        // koresha "path" nka alias — alias is a constant namespace object.
+        const alias = node.alias as string | undefined;
+        if (alias) {
+          const tok = take(alias);
+          const range = tok
+            ? rangeFromToken(tok)
+            : rangeFromOffsets(text, 0, 0);
+          const binding: Binding = {
+            name: alias,
+            kind: 'const',
+            constant: true,
+            range,
+            inferred: 'object',
+          };
+          if (tok) recordUse({ name: alias, range, role: 'decl', binding });
+          declare(scope, binding, range);
+        }
+        return;
+      }
+      case 'ExportDeclaration': {
+        // emerera_gukoresha { names } — mark names as referenced exports.
+        for (const name of (node.names as string[]) ?? []) {
+          const tok = take(name);
+          if (tok) {
+            recordUse({
+              name,
+              range: rangeFromToken(tok),
+              role: 'ref',
+            });
+          }
         }
         return;
       }
