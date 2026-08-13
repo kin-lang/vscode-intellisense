@@ -40,7 +40,8 @@ export const KEYWORDS: KinSymbolDoc[] = [
       '- `reka izina = agaciro` assigns a value (no semicolon).\n' +
       '- `reka izina;` declares it empty (`ubusa`). The semicolon is **required** when you omit the initializer; without it the parser rejects the line.\n' +
       '- Optional type: `reka age: number = 25` (required) or `reka score: number? = ubusa` (allows null).\n' +
-      '- Type names: `number`, `string`, `boolean`, `object`, `urutonde`, `fn`. Checks run at declare and reassign.',
+      '- Type names: `number`, `string`, `boolean`, `object`, `urutonde`, `fn` (`native-fn` synonym).\n' +
+      '- Type safety: `# kin-types: on|off|strict`, env `KIN_TYPES`, CLI `--types`. Checks at declare/reassign when on/strict.',
     documentation_rw:
       'Ijambo `reka` rirema ihinduragaciro ushobora guhindura nyuma muri porogaramu. Ntabwo ari `const` cyangwa `let` — muri Kin ukoresha `reka`.\n\n' +
       '- `reka izina = agaciro` rishyira agaciro (ntakadomo `;`).\n' +

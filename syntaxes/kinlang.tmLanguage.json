@@ -10,34 +10,52 @@
     {
       "begin": "\"",
       "beginCaptures": {
-        "0": { "name": "punctuation.definition.string.begin.kin" }
+        "0": {
+          "name": "punctuation.definition.string.begin.kin"
+        }
       },
       "end": "\"",
       "endCaptures": {
-        "0": { "name": "punctuation.definition.string.end.kin" }
+        "0": {
+          "name": "punctuation.definition.string.end.kin"
+        }
       },
       "name": "string.quoted.double.kin"
     },
     {
       "match": "\\b(porogaramu_ntoya)\\s+([A-Za-z_][A-Za-z0-9_]*)",
       "captures": {
-        "1": { "name": "keyword.control.kin" },
-        "2": { "name": "entity.name.function.kin" }
+        "1": {
+          "name": "keyword.control.kin"
+        },
+        "2": {
+          "name": "entity.name.function.kin"
+        }
+      }
+    },
+    {
+      "match": "\\b(reka|ntahinduka)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(:)\\s*(number|string|boolean|object|urutonde|fn|native-fn)(\\?)?",
+      "captures": {
+        "1": {
+          "name": "keyword.control.kin"
+        },
+        "2": {
+          "name": "variable.other.kin"
+        },
+        "3": {
+          "name": "punctuation.separator.type.kin"
+        },
+        "4": {
+          "name": "support.type.kin"
+        },
+        "5": {
+          "name": "punctuation.definition.optional-type.kin"
+        }
       }
     },
     {
       "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|hagarara|komeza|niba|nanone_niba|niba_byanze|gereranya|usanze|ibindi)\\b",
       "name": "keyword.control.kin"
-    },
-    {
-      "match": "\\b(reka|ntahinduka)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(:)\\s*(number|string|boolean|object|urutonde|fn)(\\?)?",
-      "captures": {
-        "1": { "name": "keyword.control.kin" },
-        "2": { "name": "variable.other.kin" },
-        "3": { "name": "punctuation.separator.type.kin" },
-        "4": { "name": "support.type.kin" },
-        "5": { "name": "punctuation.definition.optional-type.kin" }
-      }
     },
     {
       "match": "(?<!\\.)\\b(nibyo|sibyo)\\b",

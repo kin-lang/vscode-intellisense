@@ -1,3 +1,4 @@
+; Type safety: # kin-types: on|off|strict | env KIN_TYPES | CLI --types
 ; Kin Programming Language grammar (BNF)
 ; Mirror of kin/grammar.bnf — derived from lexer + parser, not from older notes.
 ;
@@ -23,7 +24,7 @@ variableDeclaration ::= "reka" identifier typeAnnotation? (";" | "=" expression)
                       | "ntahinduka" identifier typeAnnotation? "=" expression
 
 typeAnnotation ::= ":" typeName "?"?
-typeName       ::= "number" | "string" | "boolean" | "object" | "urutonde" | "fn"
+typeName       ::= "number" | "string" | "boolean" | "object" | "urutonde" | "fn" | "native-fn"
 
 functionDeclaration ::= "porogaramu_ntoya" identifier "(" parameterList? ")" block
 
