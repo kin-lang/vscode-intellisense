@@ -280,18 +280,20 @@ const INJIZA: KinSymbolDoc = {
   kind: 'function',
   detail: 'Import another Kin file',
   documentation:
-    'Loads and runs another `.kin` file in the **current** environment so its variables and functions become available.\n\n' +
+    'Loads and runs another `.kin` file in the **program (global) environment** so its top-level variables and functions become available program-wide ' +
+    '(even when `injiza` is called from inside a function, `niba`, or loop).\n\n' +
     '- Path is relative to the file that contains the `injiza` call (absolute paths work too).\n' +
     '- Each absolute path is loaded once per run; a second call is a no-op.\n' +
-    '- Circular imports raise a runtime error (`K033`).\n' +
-    '- Missing files raise `K032`.\n\n' +
+    '- Circular imports raise a runtime error (`K033`). Missing files raise `K032`.\n' +
+    '- Redeclaring the same name across files raises `K007`. Failed imports roll back partial declarations.\n\n' +
     'Requires exactly one string argument.',
   documentation_rw:
-    '`injiza` isoma ikora indi dosiye ya `.kin` mu **same** environment, kugira ngo ibihinduragaciro n’imirimo yayo iboneke.\n\n' +
+    '`injiza` isoma ikora indi dosiye ya `.kin` mu **program (global) environment**, kugira ngo ibihinduragaciro n’imirimo yayo ku rwego rwo hejuru iboneke hose ' +
+    '(n’iyo yahamagajwe muri porogaramu_ntoya, `niba`, cyangwa uruziga).\n\n' +
     '- Inzira irebana n’idosiye irimo `injiza` (absolute paths na zo zikora).\n' +
     '- Buri nzira absolute isomwa rimwe gusa; guhamagara kabiri nta cyo bikora.\n' +
-    '- Circular imports zitanga ikosa (`K033`).\n' +
-    '- Dosiye itabonetse itanga `K032`.\n\n' +
+    '- Circular imports zitanga ikosa (`K033`). Dosiye itabonetse itanga `K032`.\n' +
+    '- Gutangaza izina rimwe mu madosiye atandukanye bitanga `K007`.\n\n' +
     'Isaba argument imwe y’ubwoko string.',
   args: [
     {
