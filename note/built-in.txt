@@ -29,6 +29,12 @@ KIN_INYANDIKO.andika(path, text) -> bool | string
 KIN_INYANDIKO.vugurura(path, text) -> bool | string
 KIN_INYANDIKO.siba(path) -> bool | string
 
+
+KIN_URUBUGA.saba(url [, method [, body [, headers]]]) -> object | string
+  # success object: { kode: number, umubiri: string, imitwe: object }
+  # imitwe keys use underscores (content_type); redirects not followed
+  # failure: error message string (e.g. Request timed out)
+
 KIN_IGIHE.isaha() -> string
 KIN_IGIHE.umunsi() -> string
 KIN_IGIHE.itariki() -> string

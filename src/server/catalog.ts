@@ -1059,12 +1059,94 @@ const KIN_INYANDIKO: KinSymbolDoc = {
   },
 };
 
+const KIN_URUBUGA: KinSymbolDoc = {
+  name: 'KIN_URUBUGA',
+  kind: 'namespace',
+  detail: 'Networking helpers',
+  documentation:
+    'HTTP client for Kin programs. First slice: synchronous requests via `saba`.\n\n' +
+    'Only `http://` and `https://` URLs are supported. TCP/UDP is not available yet.\n\n' +
+    'On transport failure (bad URL, 30s timeout → `"Request timed out"`, DNS, connection refused, ' +
+    'oversized body, …) methods return an **error message string**, not `sibyo`, and do not throw.\n\n' +
+    'Redirects are **not** followed. Response bodies are UTF-8 text. Response header keys use ' +
+    'underscores (`content_type`) so they work as Kin identifiers.',
+  documentation_rw:
+    '`KIN_URUBUGA` ifasha gukoresha urubuga. Icyiciro cya mbere: icyifuzo cya HTTP cya sync binyuze kuri `saba`.\n\n' +
+    'Gusa URLs za `http://` na `https://` zemewe. TCP/UDP ntabwo zihari ubu.\n\n' +
+    'Iyo byanze ku murongo (URL mbi, timeout ya amasegonda 30 → `"Request timed out"`, DNS, …), ' +
+    'isubiza **ijambo ry’ubutumwa bw’ikosa**, si `sibyo`, kandi ntiyanga.\n\n' +
+    'Redirects ntabwo zikurikirwa. Umubiri ni UTF-8. Imfunguzo z’imitwe zikoresha `_` (`content_type`).',
+  members: {
+    saba: {
+      name: 'saba',
+      kind: 'method',
+      detail: 'HTTP request',
+      documentation:
+        'Performs a blocking HTTP request.\n\n' +
+        '- `saba(url)` — GET\n' +
+        '- `saba(url, method)` — custom method (`"GET"`, `"POST"`, …)\n' +
+        '- `saba(url, method, body)` — with UTF-8 body string\n' +
+        '- `saba(url, method, body, headers)` — headers object; identifier keys use `_` for hyphens ' +
+        '(`Content_Type` → `Content-Type`)\n\n' +
+        'Success: object `{ kode, umubiri, imitwe }`. `imitwe` keys are underscore form (`content_type`).\n' +
+        'Non-2xx (including 302 redirects, which are **not** followed) still return this object.\n' +
+        'Failure: error message **string** (e.g. `"Request timed out"` after 30s).',
+      documentation_rw:
+        '`saba` ikora icyifuzo cya HTTP gihagarika porogaramu.\n\n' +
+        '- `saba(url)` — GET\n' +
+        '- `saba(url, method)` — method (`"GET"`, `"POST"`, …)\n' +
+        '- `saba(url, method, body)` — n’umubiri wa UTF-8\n' +
+        '- `saba(url, method, body, headers)` — n’imitwe; `_` ihinduka hyphen ' +
+        '(`Content_Type` → `Content-Type`)\n\n' +
+        'Byagenze neza: icyegeranyo `{ kode, umubiri, imitwe }` (`content_type` mu imitwe).\n' +
+        'Kode zitari 2xx n’`302` (redirects ntabwo zikurikirwa) nazo zisubizwa nk’icyegeranyo.\n' +
+        'Byanze: **ijambo** ry’ubutumwa bw’ikosa (urugero `"Request timed out"`).',
+      args: [
+        {
+          name: 'url',
+          type: 'string',
+          required: true,
+          documentation: 'Full `http://` or `https://` URL.',
+          documentation_rw: 'URL yuzuye ya `http://` cyangwa `https://`.',
+        },
+        {
+          name: 'method',
+          type: 'string',
+          required: false,
+          documentation: 'HTTP method. Defaults to GET when omitted.',
+          documentation_rw: 'Method ya HTTP. Niba idashyizweho iba GET.',
+        },
+        {
+          name: 'body',
+          type: 'string',
+          required: false,
+          documentation: 'Request body text (UTF-8).',
+          documentation_rw: 'Umubiri w’icyifuzo nk’inyandiko (UTF-8).',
+        },
+        {
+          name: 'headers',
+          type: 'object',
+          required: false,
+          documentation:
+            'Request headers. Use underscores for hyphenated names (`Content_Type`).',
+          documentation_rw:
+            'Imitwe y’icyifuzo. Koresha `_` aho hari hyphen (`Content_Type`).',
+        },
+      ],
+      returns: 'object | string',
+      example:
+        'reka res = KIN_URUBUGA.saba("https://example.com")\ntangaza_amakuru(res.kode)\ntangaza_amakuru(res.imitwe.content_type)',
+    },
+  },
+};
+
 export const NAMESPACES: KinSymbolDoc[] = [
   KIN_IMIBARE,
   KIN_AMAGAMBO,
   KIN_URUTONDE,
   KIN_IGIHE,
   KIN_INYANDIKO,
+  KIN_URUBUGA,
 ];
 
 export const FUNCTIONS: KinSymbolDoc[] = [TANGAZA, INJIZA, SISITEMU, UBWOKO];

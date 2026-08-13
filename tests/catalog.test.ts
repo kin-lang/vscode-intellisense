@@ -51,6 +51,7 @@ describe('Kin language catalog', () => {
         'KIN_IGIHE',
         'KIN_IMIBARE',
         'KIN_INYANDIKO',
+        'KIN_URUBUGA',
         'KIN_URUTONDE',
       ].sort(),
     );
@@ -95,6 +96,9 @@ describe('Kin language catalog', () => {
       'siba',
       'soma',
       'vugurura',
+    ]);
+    assert.deepEqual(Object.keys(lookupSymbol('KIN_URUBUGA')!.members!).sort(), [
+      'saba',
     ]);
   });
 
