@@ -45,6 +45,17 @@
       }
     },
     {
+      "match": "\\b(imiterere)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": {
+          "name": "keyword.control.kin"
+        },
+        "2": {
+          "name": "entity.name.type.kin"
+        }
+      }
+    },
+    {
       "match": "\\b(reka|ntahinduka)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(:)\\s*([A-Za-z_][A-Za-z0-9_]*)(\\?)?",
       "captures": {
         "1": {
@@ -73,7 +84,7 @@
       "name": "support.type.primitive.kin"
     },
     {
-      "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|hagarara|komeza|niba|nanone_niba|niba_byanze|gereranya|usanze|ibindi|ubwoko)\\b",
+      "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|hagarara|komeza|niba|nanone_niba|niba_byanze|gereranya|usanze|ibindi|imiterere|tegura|rema|ikomoka|rusange|bwite|ubwoko)\\b",
       "name": "keyword.control.kin"
     },
     {

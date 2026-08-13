@@ -18,9 +18,12 @@ describe('Kin language catalog', () => {
     assert.deepEqual(
       names,
       [
+        'bwite',
         'gereranya',
         'hagarara',
         'ibindi',
+        'ikomoka',
+        'imiterere',
         'komeza',
         'nanone_niba',
         'niba',
@@ -28,8 +31,11 @@ describe('Kin language catalog', () => {
         'ntahinduka',
         'porogaramu_ntoya',
         'reka',
+        'rema',
+        'rusange',
         'subiramo_niba',
         'tanga',
+        'tegura',
         'ubwoko',
         'usanze',
       ].sort(),
@@ -39,7 +45,7 @@ describe('Kin language catalog', () => {
   test('includes every top-level built-in from globals.ts', () => {
     assert.deepEqual(
       FUNCTIONS.map((f) => f.name).sort(),
-      ['injiza_amakuru', 'sisitemu', 'tangaza_amakuru', 'ubwoko'].sort(),
+      ['injiza_amakuru', 'sisitemu', 'tangaza_amakuru'].sort(),
     );
     assert.deepEqual(
       CONSTANTS.map((c) => c.name).sort(),
@@ -157,8 +163,8 @@ describe('Kin language catalog', () => {
 
   test('documents runtime facts students hit in the first hour', () => {
     const ubwoko = formatMarkdown(lookupSymbol('ubwoko')!);
-    assert.match(ubwoko, /"umubare"/);
-    assert.match(ubwoko, /"ijambo"/);
+    assert.match(ubwoko, /type value|agaciro k’ubwoko|Type alias/i);
+    assert.match(ubwoko, /ubwoko 5 == ubwoko 10|prefix|umubare|ijambo/i);
 
     const ifite = formatMarkdown(lookupMember('KIN_URUTONDE', 'ifite')!);
     assert.match(ifite, /any element|icyo ari cyo cyose/i);
