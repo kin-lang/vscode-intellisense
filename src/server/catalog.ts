@@ -339,6 +339,87 @@ export const KEYWORDS: KinSymbolDoc[] = [
     snippet: 'ubwoko ${1:x}',
     example: 'ubwoko 5 == ubwoko 10',
   },
+  {
+    name: 'koresha',
+    kind: 'keyword',
+    detail: 'Import a module as a namespace',
+    documentation:
+      'Loads another `.kin` file and binds its **exported** names as a namespace object.\n\n' +
+      '```kin\n' +
+      'koresha "./methods.kin" nka arithmeticMethods\n' +
+      'reka x = arithmeticMethods.guteranya(2, 3)\n' +
+      '```\n\n' +
+      '- Path is relative to the **importing** file (or absolute).\n' +
+      '- Only names listed in `emerera_gukoresha { … }` in the module are exported.\n' +
+      '- Each absolute path is loaded **once** per run (cached).\n' +
+      '- Circular imports raise **K045**; missing file raises **K044**.\n' +
+      '- Trailing `;` is optional.\n' +
+      '- Exported classes are values on the namespace (`rema m.Umuntu(...)`) and ' +
+      'their type may also be registered under the bare name for annotations.',
+    documentation_rw:
+      'Ifata indi dosiye ya `.kin` ishyira amazina **yoherejwe** nk’icyegeranyo (namespace).\n\n' +
+      '```kin\n' +
+      'koresha "./methods.kin" nka arithmeticMethods\n' +
+      'reka x = arithmeticMethods.guteranya(2, 3)\n' +
+      '```\n\n' +
+      '- Inzira iva kuri dosiye **irimo gukoresha** (cyangwa absolute).\n' +
+      '- Amazina yoherejwe gusa ni ayanditswe muri `emerera_gukoresha { … }`.\n' +
+      '- Buri path yuzuye ifatwa **rimwe** (cache).\n' +
+      '- Uruziga rwa import → **K045**; dosiye idahari → **K044**.\n' +
+      '- Akadomo `;` ntabwo ari ngombwa.',
+    snippet: 'koresha "${1:./module.kin}" nka ${2:alias}',
+    example: 'koresha "./methods.kin" nka math',
+  },
+  {
+    name: 'nka',
+    kind: 'keyword',
+    detail: 'Import alias (like English “as”)',
+    documentation:
+      'Used only in imports: `koresha "path.kin" nka alias`.\n\n' +
+      'The alias is a constant binding to an object whose properties are the module’s exports.\n' +
+      'Access exports with `alias.name`.',
+    documentation_rw:
+      'Ikoreshwa gusa mu koresha: `koresha "path.kin" nka alias`.\n\n' +
+      'Izina `alias` ni ntahinduka rihuriye n’icyegeranyo cy’ibyo module yohereje.\n' +
+      'Geraho: `alias.izina`.',
+    snippet: 'nka ${1:alias}',
+  },
+  {
+    name: 'emerera_gukoresha',
+    kind: 'keyword',
+    detail: 'Export names from this module',
+    documentation:
+      'Lists which top-level names this file exports for `koresha`.\n\n' +
+      '```kin\n' +
+      'porogaramu_ntoya guteranya(a: umubare, b: umubare): umubare {\n' +
+      '  tanga a + b\n' +
+      '}\n\n' +
+      'emerera_gukoresha {\n' +
+      '  guteranya\n' +
+      '}\n' +
+      '```\n\n' +
+      '- Place after the names are defined.\n' +
+      '- Only listed names appear on the importer’s namespace object.\n' +
+      '- Works for variables, functions, and classes (`imiterere`).\n' +
+      '- Exporting an undefined name raises **K046**.',
+    documentation_rw:
+      'Yerekana amazina iyi dosiye yohereza kuri `koresha`.\n\n' +
+      '```kin\n' +
+      'porogaramu_ntoya guteranya(a: umubare, b: umubare): umubare {\n' +
+      '  tanga a + b\n' +
+      '}\n\n' +
+      'emerera_gukoresha {\n' +
+      '  guteranya\n' +
+      '}\n' +
+      '```\n\n' +
+      '- Andika nyuma y’amazina yatazwe.\n' +
+      '- Amazina yoherejwe gusa aboneka ku namespace y’uwakoresheje.\n' +
+      '- Bikora ku minduragaciro, imimaro, n’imiterere.\n' +
+      '- Kohereza izina ridahari → **K046**.',
+    snippet:
+      'emerera_gukoresha {\n\t${1:izina}\n}',
+    example: 'emerera_gukoresha { guteranya, THRESHOLD }',
+  },
 ];
 
 const TANGAZA: KinSymbolDoc = {
