@@ -434,9 +434,20 @@ export function analyze(text: string, offset?: number): Analysis {
         declare(scope, binding, range);
         return;
       }
+      case 'TypeAliasDeclaration': {
+        // Types live in a separate namespace; skip value bindings.
+        // Still walk children so nested tokens are not left unclaimed.
+        return;
+      }
       case 'FunctionDeclaration': {
         const name = node.name as string;
-        const params = (node.parameters as string[]) ?? [];
+        // Support both legacy string[] params and typed { name, typeAnnotation }[].
+        const rawParams = (node.parameters as unknown[]) ?? [];
+        const params = rawParams.map((p) =>
+          typeof p === 'string'
+            ? p
+            : ((p as { name?: string })?.name ?? String(p)),
+        );
         const nameTok = take(name);
         const range = nameTok
           ? rangeFromToken(nameTok)

@@ -10,23 +10,70 @@
     {
       "begin": "\"",
       "beginCaptures": {
-        "0": { "name": "punctuation.definition.string.begin.kin" }
+        "0": {
+          "name": "punctuation.definition.string.begin.kin"
+        }
       },
       "end": "\"",
       "endCaptures": {
-        "0": { "name": "punctuation.definition.string.end.kin" }
+        "0": {
+          "name": "punctuation.definition.string.end.kin"
+        }
       },
       "name": "string.quoted.double.kin"
     },
     {
       "match": "\\b(porogaramu_ntoya)\\s+([A-Za-z_][A-Za-z0-9_]*)",
       "captures": {
-        "1": { "name": "keyword.control.kin" },
-        "2": { "name": "entity.name.function.kin" }
+        "1": {
+          "name": "keyword.control.kin"
+        },
+        "2": {
+          "name": "entity.name.function.kin"
+        }
       }
     },
     {
-      "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|hagarara|komeza|niba|nanone_niba|niba_byanze|gereranya|usanze|ibindi)\\b",
+      "match": "\\b(ubwoko)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*=",
+      "captures": {
+        "1": {
+          "name": "keyword.control.kin"
+        },
+        "2": {
+          "name": "entity.name.type.kin"
+        }
+      }
+    },
+    {
+      "match": "\\b(reka|ntahinduka)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(:)\\s*([A-Za-z_][A-Za-z0-9_]*)(\\?)?",
+      "captures": {
+        "1": {
+          "name": "keyword.control.kin"
+        },
+        "2": {
+          "name": "variable.other.kin"
+        },
+        "3": {
+          "name": "punctuation.separator.type.kin"
+        },
+        "4": {
+          "name": "support.type.kin"
+        },
+        "5": {
+          "name": "punctuation.definition.optional-type.kin"
+        }
+      }
+    },
+    {
+      "match": "\\b(Fata)\\b",
+      "name": "support.type.kin"
+    },
+    {
+      "match": "\\b(umubare|ijambo|ukuri|ubwoko_imiterere|urutonde|porogaramu_ntoya|_porogaramu_ntoya)\\b",
+      "name": "support.type.primitive.kin"
+    },
+    {
+      "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|hagarara|komeza|niba|nanone_niba|niba_byanze|gereranya|usanze|ibindi|ubwoko)\\b",
       "name": "keyword.control.kin"
     },
     {
@@ -70,6 +117,10 @@
       "name": "keyword.operator.logical.kin"
     },
     {
+      "match": "(?<!\\|)\\|(?!\\|)",
+      "name": "keyword.operator.type.kin"
+    },
+    {
       "match": "(?<![A-Za-z0-9_])!(?!=)",
       "name": "keyword.operator.logical.kin"
     },
@@ -104,6 +155,10 @@
     {
       "match": ":",
       "name": "punctuation.separator.key-value.kin"
+    },
+    {
+      "match": "\\?",
+      "name": "punctuation.definition.optional-type.kin"
     }
   ]
 }

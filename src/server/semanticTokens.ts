@@ -42,13 +42,24 @@ const TYPE_INDEX: Record<(typeof TOKEN_TYPES)[number], number> = {
 };
 
 /**
- * Numeric `TokenType` values from `@kin-lang/kin` `src/lexer/tokens.ts`
- * (published 0.4.3 and local). STRING is 24, not 31 (31 is AND).
+ * Numeric `TokenType` values from `@kin-lang/kin` `src/lexer/tokens.ts`.
+ * Prefer probing the live lexer so enum renumbering does not break
+ * semantic highlighting (PIPE/QUESTION shifted STRING/INTEGER/FLOAT).
  */
-const TOKEN_DOT = 0;
-const TOKEN_STRING = 24;
-const TOKEN_INTEGER = 25;
-const TOKEN_FLOAT = 26;
+function probeTokenType(source: string, pick: (lexemes: string[]) => number): number {
+  try {
+    const tokens = new Lexer(source).tokenize();
+    const idx = pick(tokens.map((t) => t.lexeme));
+    return tokens[idx]?.type ?? -1;
+  } catch {
+    return -1;
+  }
+}
+
+const TOKEN_DOT = probeTokenType('.', () => 0);
+const TOKEN_STRING = probeTokenType('"x"', () => 0);
+const TOKEN_INTEGER = probeTokenType('42', () => 0);
+const TOKEN_FLOAT = probeTokenType('3.14', () => 0);
 
 interface Located {
   line: number;
