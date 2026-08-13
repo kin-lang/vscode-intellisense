@@ -84,7 +84,24 @@
       "name": "support.type.primitive.kin"
     },
     {
-      "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|hagarara|komeza|niba|nanone_niba|niba_byanze|gereranya|usanze|ibindi|imiterere|tegura|rema|ikomoka|rusange|bwite|ubwoko)\\b",
+      "match": "\\b(koresha)\\s+(\"[^\"]*\")\\s+(nka)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": {
+          "name": "keyword.control.kin"
+        },
+        "2": {
+          "name": "string.quoted.double.kin"
+        },
+        "3": {
+          "name": "keyword.control.kin"
+        },
+        "4": {
+          "name": "variable.other.kin"
+        }
+      }
+    },
+    {
+      "match": "\\b(reka|ntahinduka|porogaramu_ntoya|tanga|subiramo_niba|hagarara|komeza|niba|nanone_niba|niba_byanze|gereranya|usanze|ibindi|imiterere|tegura|rema|ikomoka|rusange|bwite|ubwoko|koresha|nka|emerera_gukoresha)\\b",
       "name": "keyword.control.kin"
     },
     {

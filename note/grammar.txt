@@ -9,6 +9,8 @@ program ::= statement*
 statement ::= variableDeclaration
             | typeAliasDeclaration
             | classDeclaration
+            | importDeclaration
+            | exportDeclaration
             | functionDeclaration
             | loopStatement
             | breakStatement
@@ -36,6 +38,12 @@ fieldInit ::= ("rusange" | "bwite") "_" "." identifier "=" expression
 methodDecl ::= ("rusange" | "bwite") "porogaramu_ntoya" identifier
                "(" parameterList? ")" typeAnnotation? block
 remaExpression ::= "rema" memberExpression "(" argumentList? ")" memberOrCall*
+
+; Modules (examples/importing): namespace import + explicit export list
+importDeclaration ::= "koresha" stringLiteral "nka" identifier ";"?
+exportDeclaration ::= "emerera_gukoresha" "{"
+                        (identifier ("," identifier)* ","?)?
+                      "}" ";"?
 
 typeAnnotation ::= ":" typeExpression "?"?
 typeExpression ::= typePrimary ("|" typePrimary)*
